@@ -2,7 +2,7 @@ CC = gcc
 
 CFLAGS 	+= -Wall -fno-builtin -fno-stack-protector -nostdlib -m32
 ASFLAGS += -m32
-LDFLAGS += -nostdlib -static
+LDFLAGS += -nostdlib -static -m32
 
 CPPFLAGS +=-nostdinc -g
 
