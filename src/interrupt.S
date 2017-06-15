@@ -21,6 +21,7 @@
 .globl simd_floating_point_exception
 
 .globl pit
+.globl rtc
 
 .macro HANDLE_INT INT
 \INT :
@@ -59,3 +60,4 @@ HANDLE_INT machine_check
 HANDLE_INT simd_floating_point_exception
 
 HANDLE_INT pit
+HANDLE_INT rtc

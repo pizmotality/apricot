@@ -4,8 +4,6 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
-#include "types.h"
-
 #define KERNEL_MEM  0x400
 #define VIDEO_MEM   0xB8
 #define USER_MEM    0x800

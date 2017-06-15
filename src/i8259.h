@@ -27,7 +27,9 @@
 #define EOI                 0x60
 
 /* IRQ vectors */
-#define IRQ_PIT     0x0
+#define IRQ_PIT         0x0
+#define IRQ_KEYBOARD    0x1
+#define IRQ_RTC         0x8
 
 /* Externally-visible functions */
 

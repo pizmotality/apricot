@@ -4,6 +4,8 @@
 #ifndef _PAGE_H
 #define _PAGE_H
 
+#include "types.h"
+
 typedef union PDE_t {
     struct {
         uint32_t present : 1;

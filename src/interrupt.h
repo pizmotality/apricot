@@ -24,5 +24,6 @@ void machine_check();
 void simd_floating_point_exception();
 
 void pit();
+void rtc();
 
 #endif /* _INTERRUPT_H */

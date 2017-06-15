@@ -9,6 +9,7 @@
 #include "page.h"
 #include "memory.h"
 #include "pit.h"
+#include "rtc.h"
 #include "debug.h"
 
 /* Macros. */
@@ -159,6 +160,9 @@ void entry(unsigned long magic, unsigned long addr) {
      * PIC, any other initialization stuff... */
     init_pit();
     enable_irq(IRQ_PIT);
+
+    init_rtc();
+    enable_irq(IRQ_RTC);
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your
