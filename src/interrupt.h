@@ -24,6 +24,7 @@ void machine_check();
 void simd_floating_point_exception();
 
 void pit();
+void keyboard();
 void rtc();
 
 #endif /* _INTERRUPT_H */

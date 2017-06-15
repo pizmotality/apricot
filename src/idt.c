@@ -71,8 +71,8 @@ void init_idt() {
     idt[INT_PIT] = interrupt_gate;
     SET_IDT_ENTRY(idt[INT_PIT], pit);
 
-    // idt[INT_KEYBOARD] = interrupt_gate;
-    // SET_IDT_ENTRY(idt[INT_KEYBOARD], keyboard);
+    idt[INT_KEYBOARD] = interrupt_gate;
+    SET_IDT_ENTRY(idt[INT_KEYBOARD], keyboard);
 
     idt[INT_RTC] = interrupt_gate;
     SET_IDT_ENTRY(idt[INT_RTC], rtc);

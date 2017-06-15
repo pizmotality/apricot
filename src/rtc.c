@@ -26,7 +26,5 @@ void handle_rtc() {
     outb(RTC_REGISTER_C, RTC_PORT);
     inb(RTC_DATA_PORT);
 
-    printf("RTC INT\n");
-
     sti();
 }

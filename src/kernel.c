@@ -9,6 +9,7 @@
 #include "page.h"
 #include "memory.h"
 #include "pit.h"
+#include "keyboard.h"
 #include "rtc.h"
 #include "debug.h"
 
@@ -160,6 +161,9 @@ void entry(unsigned long magic, unsigned long addr) {
      * PIC, any other initialization stuff... */
     init_pit();
     enable_irq(IRQ_PIT);
+
+    init_keyboard();
+    enable_irq(IRQ_KEYBOARD);
 
     init_rtc();
     enable_irq(IRQ_RTC);
