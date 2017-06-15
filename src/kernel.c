@@ -6,6 +6,8 @@
 #include "lib.h"
 #include "i8259.h"
 #include "idt.h"
+#include "page.h"
+#include "memory.h"
 #include "debug.h"
 
 /* Macros. */
@@ -145,6 +147,12 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Init the PIC */
     i8259_init();
+
+    /* Enable paging */
+    setup_kernel_video_page();
+    setup_kernel_page();
+    init_paging((uint32_t)page_directory);
+    enable_paging();
 
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
