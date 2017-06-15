@@ -20,6 +20,27 @@ void clear(void) {
     }
 }
 
+void backspace(void) {
+    screen_x = (screen_x + (NUM_COLS - 1)) % NUM_COLS;
+    if (screen_y) screen_y -= (screen_x / NUM_COLS);
+    *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
+    *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+}
+
+void newline(void) {
+    screen_x = 0;
+    if (screen_y != NUM_ROWS - 1) {
+        ++screen_y;
+    } else {
+        memmove((uint8_t*)video_mem, (uint8_t*)(video_mem + (NUM_COLS << 1)),
+            2 * NUM_COLS * (NUM_ROWS - 1) * sizeof(uint8_t));
+        for (int i = 0; i < NUM_COLS; ++i) {
+            *(uint8_t*)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = ' ';
+            *(uint8_t*)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1) + 1) = ATTRIB;
+        }
+    }
+}
+
 /* Standard printf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character

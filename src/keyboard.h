@@ -4,10 +4,10 @@
 #ifndef _KEYBOARD_H
 #define _KEYBOARD_H
 
-// #include "types.h"
-
 #define KEYBOARD_COMMAND_PORT   0x64
 #define KEYBOARD_DATA_PORT      0x60
+
+#define SCAN_CODE_SEQUENCE  0x30
 
 void init_keyboard();
 
