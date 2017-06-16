@@ -79,12 +79,14 @@ void handle_key_event(uint32_t key_event) {
             newline();
         }
 
+        if (flag_shift | flag_caps)
+            key_event += 0x40;
         line_buffer[line_buffer_index] = key_event_char[key_event];
         putc(line_buffer[line_buffer_index++]);
     }
 }
 
 void clear_line_buffer() {
-    memset(line_buffer, 0, LINE_BUFFER_SIZE * sizeof(uint8_t));
+    memset(line_buffer, '\0', LINE_BUFFER_SIZE * sizeof(uint8_t));
     line_buffer_index = 0;
 }

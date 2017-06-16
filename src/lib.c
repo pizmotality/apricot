@@ -12,19 +12,40 @@ static int screen_x;
 static int screen_y;
 static char* video_mem = (char*)VIDEO;
 
+#define CURSOR_LOW  0xF
+#define CURSOR_HIGH 0xE
+
+#define VGA_INDEX_REGISTER  0x3D4
+#define VGA_DATA_REGISTER   0x3D5
+
+void update_cursor() {
+    uint16_t position = NUM_COLS * screen_y + screen_x;
+
+    outb(CURSOR_LOW, VGA_INDEX_REGISTER);
+    outb((uint8_t)(position & 0xFF), VGA_DATA_REGISTER);
+    outb(CURSOR_HIGH, VGA_INDEX_REGISTER);
+    outb((uint8_t)((position >> 8) & 0xFF), VGA_DATA_REGISTER);
+}
+
 void clear(void) {
+    screen_x = 0;
+    screen_y = 0;
     int32_t i;
     for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
         *(uint8_t*)(video_mem + (i << 1)) = ' ';
         *(uint8_t*)(video_mem + (i << 1) + 1) = ATTRIB;
     }
+
+    update_cursor();
 }
 
 void backspace(void) {
     screen_x = (screen_x + (NUM_COLS - 1)) % NUM_COLS;
-    if (screen_y) screen_y -= (screen_x / NUM_COLS);
+    if (screen_y) screen_y -= (screen_x / (NUM_COLS - 1));
     *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
     *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
+
+    update_cursor();
 }
 
 void newline(void) {
@@ -34,11 +55,15 @@ void newline(void) {
     } else {
         memmove((uint8_t*)video_mem, (uint8_t*)(video_mem + (NUM_COLS << 1)),
             2 * NUM_COLS * (NUM_ROWS - 1) * sizeof(uint8_t));
-        for (int i = 0; i < NUM_COLS; ++i) {
+
+        int32_t i;
+        for (i = 0; i < NUM_COLS; ++i) {
             *(uint8_t*)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1)) = ' ';
             *(uint8_t*)(video_mem + ((NUM_COLS * (NUM_ROWS - 1) + i) << 1) + 1) = ATTRIB;
         }
     }
+
+    update_cursor();
 }
 
 /* Standard printf().
@@ -178,10 +203,11 @@ void putc(uint8_t c) {
     } else {
         *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
         *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        screen_x++;
-        screen_x %= NUM_COLS;
-        screen_y = (screen_y + (screen_x / NUM_COLS)) % NUM_ROWS;
+        if (++screen_x == NUM_COLS)
+            newline();
     }
+
+    update_cursor();
 }
 
 /* Convert a number to its ASCII representation, with base "radix" */
