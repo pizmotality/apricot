@@ -30,15 +30,20 @@ typedef struct boot_block_t {
     dentry_t dentry[63];
 } __attribute__((packed)) boot_block_t;
 
-#define N_INODES        0x24
-#define N_DATA_BLOCKS   0x4E
+#define N_INODE         0x24
+#define N_DATA_BLOCK    0x4E
 
 typedef struct filesystem_t {
     boot_block_t boot_block;
-    inode_t inode[N_INODES];
-    data_block_t data_block[N_DATA_BLOCKS];
+    inode_t inode[N_INODE];
+    data_block_t data_block[N_DATA_BLOCK];
 } filesystem_t;
 
 void init_filesystem(filesystem_t* start_address);
+
+int32_t read_data(uint32_t inode, uint32_t offset, uint8_t* buf, uint32_t length);
+
+int32_t read_dentry_by_name(const uint8_t* fname, dentry_t* dentry);
+int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry);
 
 #endif /* _FILESYSTEM_H */
