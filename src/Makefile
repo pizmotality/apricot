@@ -1,4 +1,4 @@
-CC = $(HOME)/opt/cross/bin/i386-elf-gcc
+CC = i386-elf-gcc
 
 CFLAGS 	+= -Wall -fno-builtin -fno-stack-protector -nostdlib
 ASFLAGS +=
