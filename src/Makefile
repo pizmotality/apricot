@@ -1,8 +1,8 @@
-CC = gcc
+CC = $(HOME)/opt/cross/bin/i386-elf-gcc
 
-CFLAGS 	+= -Wall -fno-builtin -fno-stack-protector -nostdlib -m32
-ASFLAGS += -m32
-LDFLAGS += -nostdlib -static -m32
+CFLAGS 	+= -Wall -fno-builtin -fno-stack-protector -nostdlib
+ASFLAGS +=
+LDFLAGS += -nostdlib -static
 
 CPPFLAGS +=-nostdinc -g
 
