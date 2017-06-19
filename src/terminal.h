@@ -18,6 +18,9 @@ typedef struct terminal_t {
 
 void init_terminal();
 
-terminal_t* get_current_terminal();
+int32_t open_terminal();
+int32_t close_terminal();
+int32_t read_terminal(int32_t fd, int8_t* buf, int32_t nbytes);
+int32_t write_terminal(const int8_t* buf, int32_t nbytes);
 
 #endif /* _TERMINAL_H */

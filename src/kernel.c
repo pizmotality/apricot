@@ -172,6 +172,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_rtc();
     enable_irq(IRQ_RTC);
 
+    init_process();
     init_terminal();
 
     /* Enable interrupts */

@@ -16,10 +16,20 @@ void init_terminal() {
     }
 
     current_terminal = 0;
-
-    init_process();
 }
 
-terminal_t* get_current_terminal() {
-    return (terminal_t*)terminal + current_terminal;
+int32_t open_terminal() {
+    return -1;
+}
+
+int32_t close_terminal() {
+    return -1;
+}
+
+int32_t read_terminal(int32_t fd, int8_t* buf, int32_t nbytes) {
+    return -1;
+}
+
+int32_t write_terminal(const int8_t* buf, int32_t nbytes) {
+    return -1;
 }
