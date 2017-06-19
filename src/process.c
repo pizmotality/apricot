@@ -7,7 +7,7 @@
 pcb_t* process_control_block[N_PROCESS];
 pcb_t* current_process;
 
-void init_pcb() {
+void init_process() {
     uint32_t i;
     for (i = 0; i < N_PROCESS; ++i) {
         process_control_block[i] = (pcb_t*)(KERNEL_VMEM_BASE - STACK_SIZE * (i + 1));

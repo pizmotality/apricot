@@ -22,7 +22,7 @@ typedef struct pcb_t {
     /* memory info */
 } pcb_t;
 
-void init_pcb();
+void init_process();
 
 int32_t get_available_pid();
 

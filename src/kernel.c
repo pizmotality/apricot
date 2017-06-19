@@ -13,6 +13,8 @@
 #include "rtc.h"
 #include "system_call.h"
 #include "filesystem.h"
+#include "terminal.h"
+#include "process.h"
 #include "debug.h"
 
 /* Macros. */
@@ -170,7 +172,7 @@ void entry(unsigned long magic, unsigned long addr) {
     init_rtc();
     enable_irq(IRQ_RTC);
 
-    init_pcb();
+    init_terminal();
 
     /* Enable interrupts */
     /* Do not enable the following until after you have set up your

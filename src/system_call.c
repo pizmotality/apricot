@@ -38,14 +38,10 @@ int32_t execute(const uint8_t* command) {
     pcb_t* current_process = get_current_process();
 
     new_process->parent = current_process;
-    new_process->pid = pid;
     new_process->state = 1;
     set_current_process(pid);
 
     /* store arguments */
-
-    terminal_t* current_terminal = get_current_terminal();
-    current_terminal->n_process++;
 
     uint32_t esp;
     uint32_t ebp;

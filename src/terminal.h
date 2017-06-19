@@ -15,6 +15,7 @@ typedef struct terminal_t {
     uint32_t ebp;
     uint32_t return_address;
     uint32_t pid;
+    uint32_t reserved[2];
 } terminal_t;
 
 void init_terminal();

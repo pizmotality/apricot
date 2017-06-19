@@ -2,6 +2,7 @@
  */
 
 #include "terminal.h"
+#include "process.h"
 
 terminal_t terminal[N_TERMINAL];
 
@@ -15,6 +16,8 @@ void init_terminal() {
     }
 
     current_terminal = 0;
+
+    init_process();
 }
 
 terminal_t* get_current_terminal() {
