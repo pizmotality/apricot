@@ -4,31 +4,29 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
+#include "page.h"
 #include "types.h"
 
-#define BLOCK_4KB   0x1000
-#define BLOCK_4MB   0x400000
+#define USER        1
+#define SUPERVISOR  0
 
-#define VIDEO_MEM_PHYS      0xB8000
-#define KERNEL_MEM_PHYS     0x400000
-#define USER_MEM_PHYS       0x800000
+#define VIDEO_MEM       0xB8000
+#define VIDEO_VMEM      0xB8000
+#define ViDEO_VMEM_USER 0x8400000
 
-#define VIDEO_MEM_VIRT      0xB8000
-#define KERNEL_MEM_VIRT     0x400000
-#define USER_MEM_VIRT       0x8000000
+#define KERNEL_MEM      0x400000
+#define KERNEL_VMEM     0x400000
 
-#define VIDEO_MEM_INDEX     (VIDEO_MEM_VIRT >> 12)
-#define KERNEL_MEM_INDEX    (KERNEL_MEM_VIRT >> 12)
-#define USER_MEM_INDEX      (USER_MEM_VIRT >> 12)
+#define USER_MEM        0x800000
+#define USER_VMEM       0x8000000
 
-#define KERNEL_MEM_BASE     (KERNEL_MEM_VIRT + BLOCK_4MB)
+void map_memory_block(uint32_t virtual, uint32_t physical, uint32_t user_supervisor);
+void map_memory_page(uint32_t virtual, uint32_t physical, uint32_t user_supervisor, PTE_t* page_table);
 
-void setup_kernel_page();
-void setup_kernel_video_page();
+#define _4KB_BLOCK  0x1000
+#define _4MB_BLOCK  0x400000
+#define STACK_SIZE  0x2000
 
-void setup_user_page(int32_t pid);
-void setup_user_video_page();
-
-#define STACK_SIZE      0x2000
+#define KERNEL_VMEM_BASE    (KERNEL_VMEM + _4MB_BLOCK)
 
 #endif /* _MEMORY_H */

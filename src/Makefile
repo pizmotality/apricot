@@ -18,6 +18,7 @@ DEPS = $(patsubst %.o,%.d,$(OBJS))
 
 bootimg: Makefile $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -Ttext=0x400000 -o img/bootimg
+	./makeimage.sh
 
 $(BUILD_DIR)/%.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -c -o $@ $<

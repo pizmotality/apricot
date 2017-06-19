@@ -68,14 +68,14 @@ int32_t execute(const uint8_t* command) {
     sti();
 
     disable_paging();
-    setup_user_page(pid);
+    map_memory_block(USER_VMEM, USER_MEM + pid * _4MB_BLOCK, USER);
     enable_paging();
 
     read_data(executable.inode_index, 0, (uint8_t*)0x8048000, 0x400000);
     uint32_t* entry_point = (uint32_t*)(*(uint32_t*)0x8048018);
 
     tss.ss0 = KERNEL_DS;
-    tss.esp0 = KERNEL_MEM_VIRT + BLOCK_4MB - pid * STACK_SIZE;
+    tss.esp0 = KERNEL_VMEM_BASE - pid * STACK_SIZE;
 
     asm volatile("                      \n\
                  pushl  $0x002B         \n\
