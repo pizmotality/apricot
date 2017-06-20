@@ -2,7 +2,7 @@
  */
 
 #include "process.h"
-#include "terminal.h"
+#include "tty.h"
 #include "rtc.h"
 #include "filesystem.h"
 #include "memory.h"
@@ -14,10 +14,10 @@ fops_t fops_dir;
 fops_t fops_file;
 
 #define _SET_IO_FOPS(IO) {                  \
-    IO.open = &open_terminal;               \
-    IO.close = &close_terminal;             \
-    IO.read = &read_terminal;               \
-    IO.write = &write_terminal;             \
+    IO.open = &open_tty;                    \
+    IO.close = &close_tty;                  \
+    IO.read = &read_tty;                    \
+    IO.write = &write_tty;                  \
 }
 
 #define _SET_FOPS(FTYPE) {                  \

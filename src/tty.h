@@ -23,8 +23,15 @@
 #define KEY_PRESS_ENTER             0x1C
 #define KEY_PRESS_BACKSPACE         0x0E
 
+#define NTTY    3
+
 void init_tty();
 
 void handle_key_event(uint32_t key_event);
+
+int32_t open_tty();
+int32_t close_tty();
+int32_t read_tty(int32_t fd, int8_t* buf, int32_t nbytes);
+int32_t write_tty(const int8_t* buf, int32_t nbytes);
 
 #endif /* _TTY_H */

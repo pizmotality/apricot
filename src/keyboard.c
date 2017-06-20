@@ -7,7 +7,6 @@
 #include "lib.h"
 
 void init_keyboard() {
-    init_tty();
 }
 
 void handle_keyboard() {

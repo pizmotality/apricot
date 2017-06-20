@@ -4,7 +4,6 @@
 #include "system_call.h"
 #include "filesystem.h"
 #include "process.h"
-#include "terminal.h"
 #include "memory.h"
 #include "page.h"
 #include "x86_desc.h"
