@@ -75,7 +75,7 @@ void handle_key_event(uint32_t key_event) {
             flag_caps ^= 0x1;
             break;
         case KEY_PRESS_ENTER:
-            newline();
+            // newline();
             break;
         case KEY_PRESS_BACKSPACE:
             if (line_buffer_index) {
