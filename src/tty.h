@@ -25,6 +25,10 @@
 
 #define NTTY    3
 
+typedef struct tty_t {
+    uint32_t flags;
+} tty_t;
+
 void init_tty();
 
 void handle_key_event(uint32_t key_event);
