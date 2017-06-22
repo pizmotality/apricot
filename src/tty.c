@@ -75,7 +75,7 @@ void handle_key_event(uint32_t key_event) {
             flag_caps ^= 0x1;
             break;
         case KEY_PRESS_ENTER:
-            // newline();
+            ttys[current_tty].flags |= 0x1;
             break;
         case KEY_PRESS_BACKSPACE:
             if (line_buffer_index) {
@@ -102,11 +102,17 @@ int32_t read_tty(int32_t fd, int8_t* buf, int32_t nbytes) {
     while (!(ttys[current_tty].flags & 0x1));
 
     cli();
-    uint32_t length = strlen(line_buffer);
-    if (strlen(line_buffer) > nbytes)
+    uint32_t length = strlen_tty(line_buffer);
+    if (length > nbytes)
         length = nbytes;
 
     strncpy(buf, line_buffer, length);
+    sti();
+
+    cli();
+    memmove(line_buffer, line_buffer + length, LINE_BUFFER_SIZE - length);
+    memset(line_buffer + LINE_BUFFER_SIZE - length, '\0', length);
+    line_buffer_index -= length;
     sti();
 
     ttys[current_tty].flags &= 0xFFFFFFFE;

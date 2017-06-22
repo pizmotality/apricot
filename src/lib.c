@@ -269,6 +269,25 @@ uint32_t strlen(const int8_t* s) {
     return len;
 }
 
+uint32_t strnlen(const int8_t* s, uint32_t n) {
+    register uint32_t len = 0;
+    while (s[len] != '\0' && len < n)
+        len++;
+
+    return len;
+}
+
+uint32_t strlen_tty(const int8_t* s) {
+    register uint32_t len = 0;
+    while (s[len] != '\0' && s[len] != '\n')
+        len++;
+
+    if (s[len] == '\n')
+        len++;
+
+    return len;
+}
+
 /* Optimized memset */
 void* memset(void* s, int32_t c, uint32_t n) {
     c &= 0xFF;
