@@ -10,8 +10,6 @@
 #include "lib.h"
 
 int32_t halt(uint8_t status) {
-    pcb_t* current_process = get_current_process();
-
     uint32_t return_value = (uint32_t)status;
     uint32_t esp = current_process->esp;
     uint32_t ebp = current_process->ebp;
@@ -21,9 +19,8 @@ int32_t halt(uint8_t status) {
 
     uint32_t i;
     for (i = 0; i < NFD; ++i) {
-        if (current_process->fd_array[i].flags)
+        if (current_process->fd_array[i].flags & FDOPEN)
             close(i);
-        current_process->fd_array[i].flags = 0;
     }
 
     if (current_process->parent) {
@@ -71,14 +68,12 @@ int32_t execute(const uint8_t* command) {
     if (pid < 0)
         return -1;
 
-    cli();
+    pcb_t* parent_process = current_process;
+    current_process = pcb[pid];
+    current_process->pid = pid;
 
-    pcb_t* process = get_process(pid);
-    pcb_t* current_process = get_current_process();
-
-    set_current_process(pid);
-    process->parent = current_process;
-    process->state = 1;
+    current_process->parent = parent_process;
+    current_process->state = 1;
 
     /* store arguments */
 
@@ -94,20 +89,22 @@ int32_t execute(const uint8_t* command) {
                  :
                  );
 
-    process->esp = esp;
-    process->ebp = ebp;
-    process->return_address = return_address;
+    current_process->esp = esp;
+    current_process->ebp = ebp;
+    current_process->return_address = return_address;
 
-    process->fd_array[0].fops_array = &stdin;
-    process->fd_array[0].flags = FDOPEN | FDREAD;
-    process->fd_array[1].fops_array = &stdout;
-    process->fd_array[1].flags = FDOPEN | FDWRITE;
+    current_process->fd_array[0].fops_array = &stdin;
+    current_process->fd_array[0].flags = FDOPEN | FDREAD;
+    current_process->fd_array[1].fops_array = &stdout;
+    current_process->fd_array[1].flags = FDOPEN | FDWRITE;
 
-    sti();
+    cli();
 
     disable_paging();
     map_memory_block(USER_VMEM, USER_MEM + pid * _4MB_BLOCK, USER);
     enable_paging();
+
+    sti();
 
     read_data(executable.inode_index, 0, (uint8_t*)0x8048000, 0x400000);
     uint32_t* entry_point = (uint32_t*)(*(uint32_t*)0x8048018);
@@ -136,16 +133,14 @@ int32_t execute(const uint8_t* command) {
 }
 
 int32_t read(int32_t fd, void* buf, int32_t nbytes) {
-    pcb_t* current_process = get_current_process();
-    if (fd < NFD && current_process->fd_array[fd].flags & (FDOPEN | FDREAD))
+    if (!(fd & FDINVALID) && (current_process->fd_array[fd].flags & FDREAD))
         return current_process->fd_array[fd].fops_array->read(fd, buf, nbytes);
 
     return -1;
 }
 
 int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
-    pcb_t* current_process = get_current_process();
-    if (fd < NFD && current_process->fd_array[fd].flags & (FDOPEN | FDWRITE))
+    if (!(fd & FDINVALID) && (current_process->fd_array[fd].flags & FDWRITE))
         return current_process->fd_array[fd].fops_array->write(buf, nbytes);
 
     return -1;
@@ -158,11 +153,9 @@ int32_t open(const uint8_t* fname) {
         return -1;
     }
 
-    pcb_t* current_process = get_current_process();
-
     uint32_t fd;
     for (fd = 2; fd < NFD; ++fd) {
-        if (!(current_process->fd_array[fd].flags & FDOPEN))
+        if (current_process->fd_array[fd].flags == FDCLOSE)
             break;
     }
 
@@ -196,8 +189,7 @@ int32_t open(const uint8_t* fname) {
 }
 
 int32_t close(int32_t fd) {
-    pcb_t* current_process = get_current_process();
-    if (fd < NFD && current_process->fd_array[fd].flags & FDOPEN) {
+    if (!(fd & FDINVALID) && (current_process->fd_array[fd].flags & FDOPEN)) {
         current_process->fd_array[fd].fops_array->close();
         current_process->fd_array[fd].flags = FDCLOSE;
 

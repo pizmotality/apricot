@@ -70,8 +70,6 @@ uint32_t inode_to_index(inode_t* inode) {
 }
 
 int32_t read_dir(int32_t fd, int8_t* buf, int32_t nbytes) {
-    pcb_t* current_process = get_current_process();
-
     uint32_t dentry_index = current_process->fd_array[fd].file_pos;
     if (dentry_index == filesystem->boot_block.ndentry)
         return 0;
@@ -95,8 +93,6 @@ int32_t close_dir() {
 }
 
 int32_t read_file(int32_t fd, int8_t* buf, int32_t nbytes) {
-    pcb_t* current_process = get_current_process();
-
     uint32_t index = inode_to_index(current_process->fd_array[fd].inode);
     uint32_t offset = current_process->fd_array[fd].file_pos;
 
