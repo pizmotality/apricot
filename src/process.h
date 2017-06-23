@@ -6,9 +6,6 @@
 
 #include "types.h"
 
-#define NPROCESS    4
-#define NFD         8
-
 typedef struct fops_t {
     int32_t (*read)(int32_t, int8_t*, int32_t);
     int32_t (*write)(const int8_t*, int32_t);
@@ -21,6 +18,14 @@ extern fops_t stdout;
 extern fops_t fops_rtc;
 extern fops_t fops_dir;
 extern fops_t fops_file;
+
+#define NPROCESS    4
+#define NFD         8
+
+#define FDCLOSE     0x0
+#define FDOPEN      0x1
+#define FDREAD      0x2
+#define FDWRITE     0x4
 
 struct inode_t;
 
@@ -46,13 +51,14 @@ typedef struct pcb_t {
     /* memory info */
 } pcb_t;
 
+extern pcb_t* current_process;
+
 void init_process();
 
-int32_t get_available_pid();
-
-pcb_t* get_current_process();
 pcb_t* get_process(int32_t pid);
-
+pcb_t* get_current_process();
 void set_current_process(int32_t pid);
+
+int32_t get_available_pid();
 
 #endif /* _PROCESS_H */

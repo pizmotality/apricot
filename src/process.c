@@ -54,6 +54,19 @@ void init_process() {
     current_process = 0;
 }
 
+pcb_t* get_process(int32_t pid) {
+    return process_control_block[pid];
+}
+
+pcb_t* get_current_process() {
+    return current_process;
+}
+
+void set_current_process(int32_t pid) {
+    current_process = process_control_block[pid];
+    current_process->pid = pid;
+}
+
 int32_t get_available_pid() {
     int32_t pid;
     for (pid = 0; pid < NPROCESS; ++pid) {
@@ -65,17 +78,4 @@ int32_t get_available_pid() {
         return -1;
 
     return pid;
-}
-
-pcb_t* get_current_process() {
-    return current_process;
-}
-
-pcb_t* get_process(int32_t pid) {
-    return process_control_block[pid];
-}
-
-void set_current_process(int32_t pid) {
-    current_process = process_control_block[pid];
-    current_process->pid = pid;
 }
