@@ -32,8 +32,8 @@ typedef struct data_block_t {
     uint8_t raw[4096];
 } data_block_t;
 
-#define NINODE          0x1C
-#define NDATABLOCK      0x3C
+#define NINODE          0x24
+#define NDATABLOCK      0x4E
 
 typedef struct filesystem_t {
     boot_block_t boot_block;
