@@ -97,13 +97,9 @@ int32_t read_file(int32_t fd, int8_t* buf, int32_t nbytes) {
     uint32_t offset = current_process->fd_array[fd].file_pos;
 
     uint32_t nbytes_read = read_data(index, offset, (uint8_t*)buf, nbytes);
-    if (nbytes_read < nbytes) {
-        current_process->fd_array[fd].file_pos = 0;
-        return 0;
-    } else {
-        current_process->fd_array[fd].file_pos += nbytes_read;
-        return nbytes_read;
-    }
+    current_process->fd_array[fd].file_pos += nbytes_read;
+
+    return nbytes_read;
 }
 
 int32_t write_file(const int8_t* buf, int32_t nbytes) {
