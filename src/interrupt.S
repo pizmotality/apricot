@@ -28,17 +28,43 @@
 
 .macro HANDLE_INT INT
 \INT :
-    pushal
+    pushl   $0
+    pushl   %eax
+    pushl   %ebp
+    pushl   %edi
+    pushl   %esi
+    pushl   %edx
+    pushl   %ecx
+    pushl   %ebx
     call    handle_\INT
-    popal
+    popl    %ebx
+    popl    %ecx
+    popl    %edx
+    popl    %esi
+    popl    %edi
+    popl    %ebp
+    popl    %eax
+    addl    $4, %esp
     iret
 .endm
 
 .macro HANDLE_INT_ERRCODE INT
 \INT :
-    pushal
+    pushl   %eax
+    pushl   %ebp
+    pushl   %edi
+    pushl   %esi
+    pushl   %edx
+    pushl   %ecx
+    pushl   %ebx
     call    handle_\INT
-    popal
+    popl    %ebx
+    popl    %ecx
+    popl    %edx
+    popl    %esi
+    popl    %edi
+    popl    %ebp
+    popl    %eax
     addl    $4, %esp
     iret
 .endm
@@ -86,6 +112,7 @@ system_call:
     cmpl    $(NUMBER_SYSTEM_CALL), %eax
     jae     invalid_system_call
 
+    pushl   $0
     pushl   %eax
     pushl   %ebp
     pushl   %edi
@@ -100,7 +127,7 @@ system_call:
     popl    %esi
     popl    %edi
     popl    %ebp
-    addl    $4, %esp
+    addl    $8, %esp
     iret
 
 invalid_system_call:
