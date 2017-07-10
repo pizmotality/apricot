@@ -243,5 +243,25 @@ int32_t set_handler(int32_t signum, void* handler_address) {
 }
 
 int32_t sigreturn(void) {
-    return -1;
+    uint32_t context, original_context;
+    asm volatile("                          \n\
+                 leal   8(%%ebp), %0        \n\
+                 movl   52(%%ebp), %%ebx    \n\
+                 leal   4(%%ebx), %1        \n\
+                 "
+                 : "=r" (context), "=r" (original_context)
+                 :
+                 : "ebx"
+                 );
+
+    memcpy((uint8_t*)context, (uint8_t*)original_context, 0x34);
+
+    int32_t return_value;
+    asm volatile("                          \n\
+                 movl   32(%%ebp), %0       \n\
+                 "
+                 : "=r" (return_value)
+                 );
+
+    return return_value;
 }
