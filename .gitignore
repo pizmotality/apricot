@@ -6,3 +6,6 @@
 # build files
 *.d
 *.o
+
+# image files
+*.img
