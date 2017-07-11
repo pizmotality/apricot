@@ -13,6 +13,8 @@
 #define RTC_CR_B    0x8B
 #define RTC_CR_C    0x8C
 
+#define BASE_FREQ   0x8000
+
 typedef struct time_t {
     uint8_t second;
     uint8_t minute;
@@ -37,5 +39,6 @@ int32_t open_rtc();
 int32_t close_rtc();
 
 int32_t set_rtc_freq(uint32_t freq);
+uint32_t get_rtc_freq();
 
 #endif /* _RTC_H */

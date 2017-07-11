@@ -2,10 +2,14 @@
  */
 
 #include "rtc.h"
+#include "signal.h"
 #include "i8259.h"
 #include "lib.h"
 
 int32_t status;
+
+uint32_t frequency;
+uint32_t count;
 
 void init_rtc() {
     cli();
@@ -24,6 +28,8 @@ void init_rtc() {
     sti();
 
     status = RTCCLOSE;
+    frequency = get_rtc_freq();
+    count = 0;
 }
 
 void handle_rtc() {
@@ -36,6 +42,12 @@ void handle_rtc() {
     status &= ~RTCSET;
 
     sti();
+
+    count = count + BASE_FREQ / frequency;
+    if (count >= SIGALARM_FREQ) {
+        queue_signal(SIGALARM);
+        count = count % BASE_FREQ;
+    }
 }
 
 int32_t read_rtc(int32_t fd, int8_t* buf, int32_t nbytes) {
@@ -85,9 +97,22 @@ int32_t set_rtc_freq(uint32_t freq) {
 
             sti();
 
+            frequency = freq;
             return 0;
         }
     }
 
     return -1;
+}
+
+uint32_t get_rtc_freq() {
+    cli();
+
+    outb(RTC_CR_A, RTC_PORT);
+    uint8_t prev = inb(RTC_DATA_PORT);
+    prev = prev & 0x0F;
+
+    sti();
+
+    return (BASE_FREQ << 1) >> prev;
 }
