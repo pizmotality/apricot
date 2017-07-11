@@ -8,7 +8,7 @@
 
 int32_t status;
 
-uint32_t frequency;
+uint32_t rate;
 uint32_t count;
 
 void init_rtc() {
@@ -28,7 +28,7 @@ void init_rtc() {
     sti();
 
     status = RTCCLOSE;
-    frequency = get_rtc_freq();
+    rate = get_rtc_rate();
     count = 0;
 }
 
@@ -41,13 +41,13 @@ void handle_rtc() {
 
     status &= ~RTCSET;
 
-    sti();
-
-    count = count + BASE_FREQ / frequency;
+    count = count + (BASE_FREQ >> rate);
     if (count >= SIGALARM_FREQ) {
         queue_signal(SIGALARM);
         count = count % BASE_FREQ;
     }
+
+    sti();
 }
 
 int32_t read_rtc(int32_t fd, int8_t* buf, int32_t nbytes) {
@@ -97,7 +97,7 @@ int32_t set_rtc_freq(uint32_t freq) {
 
             sti();
 
-            frequency = freq;
+            rate = 0x10 - divider;
             return 0;
         }
     }
@@ -105,7 +105,7 @@ int32_t set_rtc_freq(uint32_t freq) {
     return -1;
 }
 
-uint32_t get_rtc_freq() {
+uint32_t get_rtc_rate() {
     cli();
 
     outb(RTC_CR_A, RTC_PORT);
@@ -114,5 +114,5 @@ uint32_t get_rtc_freq() {
 
     sti();
 
-    return (BASE_FREQ << 1) >> prev;
+    return 0x10 - prev;
 }

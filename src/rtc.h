@@ -39,6 +39,6 @@ int32_t open_rtc();
 int32_t close_rtc();
 
 int32_t set_rtc_freq(uint32_t freq);
-uint32_t get_rtc_freq();
+uint32_t get_rtc_rate();
 
 #endif /* _RTC_H */
