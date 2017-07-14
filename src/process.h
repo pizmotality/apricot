@@ -49,8 +49,8 @@ typedef struct pcb_t {
     pcb_t* parent;
     uint8_t args[128];
     fd_t fd_array[NFD];
-    uint32_t signum;
     uint32_t sigmask;
+    uint32_t sigqueue;
     uint32_t* sighandlers[NSIGNAL];
 } pcb_t;
 

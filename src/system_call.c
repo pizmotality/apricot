@@ -111,8 +111,8 @@ int32_t execute(const uint8_t* command) {
     current_process->fd_array[1].fops_array = &stdout;
     current_process->fd_array[1].flags = FDOPEN | FDWRITE;
 
-    current_process->signum = 0;
-    current_process->sigmask = 0;
+    current_process->sigqueue = 0;
+    current_process->sigmask = SIGMASK_DEF;
     for (i = 0; i < NSIGNAL; ++i)
         current_process->sighandlers[i] = 0;
 
@@ -236,6 +236,8 @@ int32_t vidmap(uint8_t** screen_start) {
 int32_t set_handler(int32_t signum, void* handler_address) {
     if ((uint32_t)signum < NSIGNAL) {
         current_process->sighandlers[signum] = handler_address;
+        current_process->sigmask &= ~(0x1 << signum);
+
         return 0;
     }
 
