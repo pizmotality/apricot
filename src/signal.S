@@ -64,21 +64,21 @@ leave_deliver_signal:
 queue_signal:
     pushl   %ebp
     movl    %esp, %ebp
-    pushl   %ecx
     pushl   %eax
+    pushl   %ecx
     pushl   %edx
     movl    current_process, %ebx
-    movl    0x118(%ebx), %ecx
+    movl    0x118(%ebx), %eax
     movl    $0x1, %edx
-    movl    8(%ebp), %eax
+    movl    8(%ebp), %ecx
     shl     %cl, %edx
-    andl    %edx, %ecx
+    andl    %edx, %eax
     jne     leave_queue_signal
-    movl    %eax, 0x11c(%ebx)
+    movl    %ecx, 0x11c(%ebx)
 
 leave_queue_signal:
     popl    %edx
-    popl    %eax
     popl    %ecx
+    popl    %eax
     leave
     ret
