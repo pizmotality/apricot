@@ -26,7 +26,7 @@ check_signal:
 handle_signal:
     movl    $0x1, %eax
     shl     %cl, %eax
-    movl    %eax, 0x11c(%esi)
+    xorl    %eax, 0x11c(%esi)
     leal    0x120(%esi), %ebx
     movl    (%ebx, %ecx, 4), %ebx
     testl   %ebx, %ebx
