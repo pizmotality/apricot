@@ -12,9 +12,21 @@ deliver_signal:
     pushl   %ebp
     movl    %esp, %ebp
     movl    current_process, %esi
-    movl    0x11c(%esi), %ecx
-    testl   %ecx, %ecx
+    movl    0x11c(%esi), %eax
+    xorl    %ecx, %ecx
+
+check_signal:
+    shr     $0x1, %eax
+    jc      handle_signal
+    incl    %ecx
+    cmpl    $0x5, %ecx
     je      leave_deliver_signal
+    jmp     check_signal
+
+handle_signal:
+    movl    $0x1, %eax
+    shl     %cl, %eax
+    movl    %eax, 0x11c(%esi)
     leal    0x120(%esi), %ebx
     movl    (%ebx, %ecx, 4), %ebx
     testl   %ebx, %ebx
@@ -74,7 +86,7 @@ queue_signal:
     shl     %cl, %edx
     andl    %edx, %eax
     jne     leave_queue_signal
-    movl    %ecx, 0x11c(%ebx)
+    orl     %edx, 0x11c(%ebx)
 
 leave_queue_signal:
     popl    %edx
