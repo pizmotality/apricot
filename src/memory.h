@@ -13,7 +13,7 @@ struct PTE_t;
 
 #define VIDEO_MEM       0xB8000
 #define VIDEO_VMEM      0xB8000
-#define ViDEO_VMEM_USER 0x8400000
+#define VIDEO_VMEM_USER 0x8400000
 
 #define KERNEL_MEM      0x400000
 #define KERNEL_VMEM     0x400000

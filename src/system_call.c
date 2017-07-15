@@ -230,7 +230,13 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
 }
 
 int32_t vidmap(uint8_t** screen_start) {
-    return -1;
+    if ((uint32_t)screen_start < USER_VMEM || (uint32_t)screen_start & 0xF7C00000)
+        return -1;
+
+    map_memory_page(VIDEO_VMEM_USER, VIDEO_MEM, USER, page_table_user);
+    *screen_start = (uint8_t*)VIDEO_VMEM_USER;
+
+    return 0;
 }
 
 int32_t set_handler(int32_t signum, void* handler_address) {
