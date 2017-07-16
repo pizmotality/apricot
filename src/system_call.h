@@ -6,6 +6,8 @@
 
 #include "types.h"
 
+#define ELF_HEADER  0x464C457F
+
 int32_t halt(uint8_t status);
 int32_t execute(const uint8_t* command);
 int32_t read(int32_t fd, void* buf, int32_t nbytes);

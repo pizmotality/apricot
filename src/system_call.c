@@ -73,6 +73,8 @@ int32_t execute(const uint8_t* command) {
     uint8_t header[4];
     if (read_data(executable.inode_index, 0, header, 4) != 4)
         return -1;
+    if (*((uint32_t*)header) != ELF_HEADER)
+        return -1;
 
     int32_t pid = get_available_pid();
     if (pid < 0)
