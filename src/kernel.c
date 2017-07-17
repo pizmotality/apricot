@@ -157,8 +157,8 @@ void entry(unsigned long magic, unsigned long addr) {
     i8259_init();
 
     /* Enable paging */
-    map_memory_block(KERNEL_VMEM, KERNEL_MEM, SUPERVISOR);
-    map_memory_page(VIDEO_VMEM, VIDEO_MEM, SUPERVISOR, page_table);
+    map_memory_block(VMEM_KERNEL, PMEM_KERNEL, SUPERVISOR);
+    map_memory_page(VMEM_VIDEO, PMEM_VIDEO, SUPERVISOR, page_table);
     init_paging((uint32_t)page_directory);
     enable_paging();
 

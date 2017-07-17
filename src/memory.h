@@ -11,23 +11,25 @@ struct PTE_t;
 #define USER        1
 #define SUPERVISOR  0
 
-#define VIDEO_MEM       0xB8000
-#define VIDEO_VMEM      0xB8000
-#define VIDEO_VMEM_USER 0x8400000
+#define PMEM_VIDEO      0xB8000
+#define VMEM_VIDEO      0xB8000
 
-#define KERNEL_MEM      0x400000
-#define KERNEL_VMEM     0x400000
+#define PMEM_KERNEL     0x400000
+#define VMEM_KERNEL     0x400000
 
-#define USER_MEM        0x800000
-#define USER_VMEM       0x8000000
+#define PMEM_USER       0x800000
+#define VMEM_USER       0x8000000
 
 void map_memory_block(uint32_t virtual, uint32_t physical, uint32_t user_supervisor);
 void map_memory_page(uint32_t virtual, uint32_t physical, uint32_t user_supervisor, struct PTE_t* page_table);
 
-#define _4KB_BLOCK  0x1000
-#define _4MB_BLOCK  0x400000
+#define MEM_PAGE    0x1000
+#define MEM_BLOCK   0x400000
 #define STACK_SIZE  0x2000
 
-#define KERNEL_VMEM_BASE    (KERNEL_VMEM + _4MB_BLOCK)
+#define VMEM_KERNEL_BASE    (VMEM_KERNEL + MEM_BLOCK)
+#define VMEM_VIDEO_USER     (VMEM_USER + MEM_BLOCK)
+
+#define PMEM_VIDEO_BUFFER   (PMEM_VIDEO + MEM_PAGE)
 
 #endif /* _MEMORY_H */

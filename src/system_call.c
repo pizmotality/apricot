@@ -25,10 +25,10 @@ int32_t halt(uint8_t status) {
         current_process = current_process->parent;
 
         disable_paging();
-        map_memory_block(USER_VMEM, USER_MEM + current_process->pid * _4MB_BLOCK, USER);
+        map_memory_block(VMEM_USER, PMEM_USER + current_process->pid * MEM_BLOCK, USER);
         enable_paging();
 
-        tss.esp0 = KERNEL_VMEM_BASE - current_process->pid * STACK_SIZE;
+        tss.esp0 = VMEM_KERNEL_BASE - current_process->pid * STACK_SIZE;
     }
 
     asm volatile("                          \n\
@@ -111,7 +111,7 @@ int32_t execute(const uint8_t* command) {
     cli();
 
     disable_paging();
-    map_memory_block(USER_VMEM, USER_MEM + pid * _4MB_BLOCK, USER);
+    map_memory_block(VMEM_USER, PMEM_USER + pid * MEM_BLOCK, USER);
     enable_paging();
 
     sti();
@@ -120,7 +120,7 @@ int32_t execute(const uint8_t* command) {
     uint32_t* entry_point = (uint32_t*)(*(uint32_t*)0x8048018);
 
     tss.ss0 = KERNEL_DS;
-    tss.esp0 = KERNEL_VMEM_BASE - pid * STACK_SIZE;
+    tss.esp0 = VMEM_KERNEL_BASE - pid * STACK_SIZE;
 
     asm volatile("                      \n\
                  pushl  $0x002B         \n\
@@ -220,11 +220,11 @@ int32_t getargs(uint8_t* buf, int32_t nbytes) {
 }
 
 int32_t vidmap(uint8_t** screen_start) {
-    if ((uint32_t)screen_start < USER_VMEM || (uint32_t)screen_start & 0xF7C00000)
+    if ((uint32_t)screen_start < VMEM_USER || (uint32_t)screen_start & 0xF7C00000)
         return -1;
 
-    map_memory_page(VIDEO_VMEM_USER, VIDEO_MEM, USER, page_table_user);
-    *screen_start = (uint8_t*)VIDEO_VMEM_USER;
+    map_memory_page(VMEM_VIDEO_USER, PMEM_VIDEO, USER, page_table_user);
+    *screen_start = (uint8_t*)VMEM_VIDEO_USER;
 
     return 0;
 }

@@ -40,7 +40,7 @@ void init_process() {
 
     uint32_t i;
     for (i = 0; i < NPROCESS; ++i) {
-        pcb[i] = (pcb_t*)(KERNEL_VMEM_BASE - STACK_SIZE * (i + 1));
+        pcb[i] = (pcb_t*)(VMEM_KERNEL_BASE - STACK_SIZE * (i + 1));
         pcb[i]->state = 0;
 
         uint32_t j;
