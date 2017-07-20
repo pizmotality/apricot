@@ -9,3 +9,10 @@
 
 # image files
 *.img
+
+# editor swap files
+*.swp
+
+# debug info
+*.info
+*.dump
