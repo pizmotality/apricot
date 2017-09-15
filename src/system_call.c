@@ -12,7 +12,7 @@
 #include "lib.h"
 
 int32_t halt(uint8_t status) {
-    current_process->state = 0;
+    current_process->state = PAVAIL;
 
     uint32_t i;
     for (i = 0; i < NFD; ++i) {
@@ -24,6 +24,7 @@ int32_t halt(uint8_t status) {
 
     if (current_process->parent) {
         current_process = current_process->parent;
+        current_process->state |= PACTIVE;
 
         disable_paging();
         map_memory_block(VMEM_USER, PMEM_USER + current_process->pid * MEM_BLOCK, USER);
@@ -78,11 +79,12 @@ int32_t execute(const uint8_t* command) {
         return -1;
 
     pcb_t* parent_process = current_process;
+    parent_process->state &= ~PACTIVE;
 
     current_process = pcb[pid];
     current_process->pid = pid;
     current_process->parent = parent_process;
-    current_process->state = 1;
+    current_process->state |= PACTIVE;
 
     current_process->tty = parent_process ? parent_process->tty : current_tty;
 

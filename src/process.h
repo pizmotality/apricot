@@ -57,6 +57,10 @@ typedef struct pcb_t {
 
 #define NPROCESS    6
 
+#define PAVAIL      0x0
+#define PALIVE      0x1
+#define PACTIVE     0x2
+
 extern pcb_t* pcb[NPROCESS];
 extern pcb_t* current_process;
 

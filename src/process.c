@@ -41,7 +41,7 @@ void init_process() {
     uint32_t i;
     for (i = 0; i < NPROCESS; ++i) {
         pcb[i] = (pcb_t*)(VMEM_KERNEL_BASE - STACK_SIZE * (i + 1));
-        pcb[i]->state = 0;
+        pcb[i]->state = PAVAIL;
 
         uint32_t j;
         for (j = 0; j < NFD; ++j) {
@@ -57,14 +57,14 @@ void init_process() {
 int32_t get_available_pid() {
     int32_t pid;
     for (pid = 0; pid < NPROCESS; ++pid) {
-        if (!pcb[pid]->state)
+        if (pcb[pid]->state == PAVAIL)
             break;
     }
 
     if (pid == NPROCESS)
         return -1;
 
-    pcb[pid]->state = 1;
+    pcb[pid]->state = PALIVE;
 
     return pid;
 }
