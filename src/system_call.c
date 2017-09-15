@@ -79,7 +79,8 @@ int32_t execute(const uint8_t* command) {
         return -1;
 
     pcb_t* parent_process = current_process;
-    parent_process->state &= ~PACTIVE;
+    if (parent_process)
+        parent_process->state &= ~PACTIVE;
 
     current_process = pcb[pid];
     current_process->pid = pid;
