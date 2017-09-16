@@ -51,10 +51,20 @@ int32_t halt(uint8_t status) {
 }
 
 int32_t execute(const uint8_t* command) {
-    /* parse arguments */
+    uint8_t binary[64];
+
+    // assume strlen(binary) < 64
+    uint32_t i;
+    for (i = 0; ; ++i) {
+        if (command[i] == ' ' || command[i] == '\0' || command[i] == '\n') {
+            strncpy((int8_t*)binary, (int8_t*)command, i);
+            binary[i] = '\0';
+            break;
+        }
+    }
 
     dentry_t executable;
-    if (read_dentry_by_name(command, &executable)) {
+    if (read_dentry_by_name(binary, &executable)) {
         printf("executable not found\n");
         return -1;
     }
@@ -75,7 +85,10 @@ int32_t execute(const uint8_t* command) {
     current_process->parent = parent_process;
     current_process->state = 1;
 
-    /* store arguments */
+    if (strlen((int8_t*)command) == i++)
+        current_process->args[0] = '\0';
+    else
+        strncpy((int8_t*)current_process->args, (int8_t*)command + i, 128);
 
     uint32_t esp;
     uint32_t ebp;
@@ -200,7 +213,14 @@ int32_t close(int32_t fd) {
 }
 
 int32_t getargs(uint8_t* buf, int32_t nbytes) {
-    return -1;
+    uint32_t length = strlen((int8_t*)current_process->args);
+    if (length + 1 > nbytes)
+        return -1;
+
+    strncpy((int8_t*)buf, (int8_t*)current_process->args, nbytes);
+    buf[length] = '\0';
+
+    return 0;
 }
 
 int32_t vidmap(uint8_t** screen_start) {
