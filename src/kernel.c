@@ -12,6 +12,7 @@
 #include "keyboard.h"
 #include "rtc.h"
 #include "system_call.h"
+#include "filesystem.h"
 #include "debug.h"
 
 /* Macros. */
