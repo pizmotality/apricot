@@ -5,6 +5,7 @@
 #include "x86_desc.h"
 #include "lib.h"
 #include "i8259.h"
+#include "idt.h"
 #include "debug.h"
 
 /* Macros. */
@@ -137,6 +138,10 @@ void entry(unsigned long magic, unsigned long addr) {
         tss.esp0 = 0x800000;
         ltr(KERNEL_TSS);
     }
+
+    /* Load IDT */
+    lidt(idt_desc_ptr);
+    init_idt();
 
     /* Init the PIC */
     i8259_init();
