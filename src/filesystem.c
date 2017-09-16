@@ -77,7 +77,7 @@ int32_t read_dir(int32_t fd, int8_t* buf, int32_t nbytes) {
     ++current_process->fd_array[fd].file_pos;
     strncpy(buf, (int8_t*)filesystem->boot_block.dentry_block[dentry_index].fname, nbytes);
 
-    return 1;
+    return strnlen(buf, nbytes);
 }
 
 int32_t write_dir(const int8_t* buf, int32_t nbytes) {
