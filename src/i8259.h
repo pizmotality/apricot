@@ -26,6 +26,9 @@
  * to declare the interrupt finished */
 #define EOI                 0x60
 
+/* IRQ vectors */
+#define IRQ_PIT     0x0
+
 /* Externally-visible functions */
 
 /* Initialize both PICs */

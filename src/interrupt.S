@@ -20,6 +20,8 @@
 .globl machine_check
 .globl simd_floating_point_exception
 
+.globl pit
+
 .macro HANDLE_INT INT
 \INT :
     pushal
@@ -55,3 +57,5 @@ HANDLE_INT floating_point_error
 HANDLE_INT alignment_check
 HANDLE_INT machine_check
 HANDLE_INT simd_floating_point_exception
+
+HANDLE_INT pit

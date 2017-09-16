@@ -23,4 +23,6 @@ void alignment_check();
 void machine_check();
 void simd_floating_point_exception();
 
+void pit();
+
 #endif /* _INTERRUPT_H */
