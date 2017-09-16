@@ -20,20 +20,21 @@ int32_t halt(uint8_t status) {
     current_process->state = 0;
 
     uint32_t i;
-    for (i = 0; i < 8; ++i) {
+    for (i = 0; i < NFD; ++i) {
         if (current_process->fd_array[i].flags)
             close(i);
         current_process->fd_array[i].flags = 0;
     }
 
-    if (current_process->parent)
+    if (current_process->parent) {
         current_process = current_process->parent;
 
-    disable_paging();
-    // unmap_memory_block();
-    enable_paging();
+        disable_paging();
+        map_memory_block(USER_VMEM, USER_MEM + current_process->pid * _4MB_BLOCK, USER);
+        enable_paging();
 
-    tss.esp0 = KERNEL_VMEM_BASE - current_process->pid * STACK_SIZE;
+        tss.esp0 = KERNEL_VMEM_BASE - current_process->pid * STACK_SIZE;
+    }
 
     asm volatile("                      \n\
                  xorl   %%eax, %%eax    \n\
