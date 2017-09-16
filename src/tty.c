@@ -8,6 +8,8 @@
 #include "page.h"
 #include "lib.h"
 
+#define PMEM_VIDEO_BUFFER   (PMEM_VIDEO + MEM_PAGE)
+
 static int8_t line_buffer[LINE_BUFFER_SIZE];
 static uint32_t line_buffer_index;
 
@@ -56,7 +58,7 @@ void init_tty() {
     for (i = 0; i < NTTY; ++i)
         ttys[i].flags = 0;
 
-    current_tty = 1;
+    current_tty = 0;
 }
 
 void switch_tty(uint32_t target) {
@@ -66,11 +68,11 @@ void switch_tty(uint32_t target) {
     cli();
     disable_paging();
 
-    memcpy((uint8_t*)(PMEM_VIDEO + current_tty * MEM_PAGE), (uint8_t*)PMEM_VIDEO, MEM_PAGE);
-    memcpy((uint8_t*)PMEM_VIDEO, (uint8_t*)(PMEM_VIDEO + target * MEM_PAGE), MEM_PAGE);
+    memcpy((uint8_t*)(PMEM_VIDEO_BUFFER + current_tty * MEM_PAGE), (uint8_t*)PMEM_VIDEO, MEM_PAGE);
+    memcpy((uint8_t*)PMEM_VIDEO, (uint8_t*)(PMEM_VIDEO_BUFFER + target * MEM_PAGE), MEM_PAGE);
 
     if (current_tty == current_process->tty)
-        map_memory_page(VMEM_VIDEO, PMEM_VIDEO + current_process->tty * MEM_PAGE, SUPERVISOR, page_table_user);
+        map_memory_page(VMEM_VIDEO, PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE, SUPERVISOR, page_table_user);
     if (target == current_process->tty)
         map_memory_page(VMEM_VIDEO, PMEM_VIDEO, SUPERVISOR, page_table_user);
     /* remap VMEM_VIDEO_USER if mapped */

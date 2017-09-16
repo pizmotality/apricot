@@ -30,7 +30,7 @@
 
 #define KEY_PRESS_C                 0x2E
 
-#define TTY_OFFSET                  0x01
+#define TTY_OFFSET                  0x02
 #define KEY_PRESS_1                 0x02
 #define KEY_PRESS_2                 0x03
 #define KEY_PRESS_3                 0x04
