@@ -41,6 +41,13 @@ void init_process() {
     for (i = 0; i < NPROCESS; ++i) {
         process_control_block[i] = (pcb_t*)(KERNEL_VMEM_BASE - STACK_SIZE * (i + 1));
         process_control_block[i]->state = 0;
+
+        uint32_t j;
+        for (j = 0; j < NFD; ++j) {
+            process_control_block[i]->fd_array[j].inode = 0;
+            process_control_block[i]->fd_array[j].file_pos = 0;
+            process_control_block[i]->fd_array[j].flags = 0;
+        }
     }
 
     current_process = 0;

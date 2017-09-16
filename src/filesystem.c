@@ -60,6 +60,10 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry) {
     return 0;
 }
 
+inode_t* get_inode_by_index(uint32_t index) {
+    return filesystem->inode_block + index;
+}
+
 int32_t read_dir(int32_t fd, int8_t* buf, int32_t nbytes) {
     return -1;
 }

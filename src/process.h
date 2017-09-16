@@ -16,6 +16,12 @@ typedef struct fops_t {
     int32_t (*close)();
 } fops_t;
 
+extern fops_t stdin;
+extern fops_t stdout;
+extern fops_t fops_rtc;
+extern fops_t fops_dir;
+extern fops_t fops_file;
+
 struct inode_t;
 
 typedef struct fd_t {
@@ -34,7 +40,7 @@ typedef struct pcb_t {
     uint32_t return_address;
     pcb_t* parent;
     uint8_t args[128];
-    fd_t fd_array[8];
+    fd_t fd_array[NFD];
     /* signal info */
     /* memory info */
 } pcb_t;
