@@ -4,6 +4,7 @@
 #include "system_call.h"
 #include "process.h"
 #include "terminal.h"
+#include "memory.h"
 #include "page.h"
 #include "x86_desc.h"
 #include "lib.h"
@@ -57,7 +58,7 @@ int32_t execute(const uint8_t* command) {
     sti();
 
     disable_paging();
-    /* setup user page */
+    setup_user_page(pid);
     enable_paging();
 
     /* read data */

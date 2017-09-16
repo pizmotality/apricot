@@ -46,7 +46,7 @@ void setup_user_page(int32_t pid) {
     page_directory[32].zero = 0;
     page_directory[32].page_size = 1;
     page_directory[32].global = 0;
-    page_directory[32].page_table_base_address = USER_MEM_ADDRESS >> 12;
+    page_directory[32].page_table_base_address = (USER_MEM_ADDRESS + MEM_BLOCK_4MB * pid) >> 12;
 }
 
 void setup_user_video_page() {
