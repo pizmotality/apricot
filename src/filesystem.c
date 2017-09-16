@@ -70,7 +70,16 @@ uint32_t inode_to_index(inode_t* inode) {
 }
 
 int32_t read_dir(int32_t fd, int8_t* buf, int32_t nbytes) {
-    return -1;
+    pcb_t* current_process = get_current_process();
+
+    uint32_t dentry_index = current_process->fd_array[fd].file_pos;
+    if (dentry_index == filesystem->boot_block.ndentry)
+        return 0;
+
+    ++current_process->fd_array[fd].file_pos;
+    strncpy(buf, (int8_t*)filesystem->boot_block.dentry_block[dentry_index].fname, nbytes);
+
+    return 1;
 }
 
 int32_t write_dir(const int8_t* buf, int32_t nbytes) {
@@ -78,11 +87,11 @@ int32_t write_dir(const int8_t* buf, int32_t nbytes) {
 }
 
 int32_t open_dir() {
-    return -1;
+    return 0;
 }
 
 int32_t close_dir() {
-    return -1;
+    return 0;
 }
 
 int32_t read_file(int32_t fd, int8_t* buf, int32_t nbytes) {
@@ -106,9 +115,9 @@ int32_t write_file(const int8_t* buf, int32_t nbytes) {
 }
 
 int32_t open_file() {
-    return -1;
+    return 0;
 }
 
 int32_t close_file() {
-    return -1;
+    return 0;
 }

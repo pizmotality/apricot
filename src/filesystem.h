@@ -16,9 +16,9 @@ typedef struct dentry_t {
 #define NDENTRY         0x3F
 
 typedef struct boot_block_t {
-    uint32_t dentry_index;
-    uint32_t inode_index;
-    uint32_t data_index;
+    uint32_t ndentry;
+    uint32_t ninode;
+    uint32_t ndata;
     uint32_t reserved[13];
     dentry_t dentry_block[NDENTRY];
 } __attribute__((packed)) boot_block_t;
