@@ -4,8 +4,9 @@
 #ifndef _MEMORY_H
 #define _MEMORY_H
 
-#include "page.h"
 #include "types.h"
+
+struct PTE_t;
 
 #define USER        1
 #define SUPERVISOR  0
@@ -21,7 +22,7 @@
 #define USER_VMEM       0x8000000
 
 void map_memory_block(uint32_t virtual, uint32_t physical, uint32_t user_supervisor);
-void map_memory_page(uint32_t virtual, uint32_t physical, uint32_t user_supervisor, PTE_t* page_table);
+void map_memory_page(uint32_t virtual, uint32_t physical, uint32_t user_supervisor, struct PTE_t* page_table);
 
 #define _4KB_BLOCK  0x1000
 #define _4MB_BLOCK  0x400000

@@ -6,37 +6,33 @@
 
 #include "types.h"
 
-typedef union PDE_t {
-    struct {
-        uint32_t present : 1;
-        uint32_t read_write : 1;
-        uint32_t user_supervisor : 1;
-        uint32_t page_write_through : 1;
-        uint32_t page_cache_disable : 1;
-        uint32_t accessed : 1;
-        uint32_t zero : 1;
-        uint32_t page_size : 1;
-        uint32_t global : 1;
-        uint32_t available : 3;
-        uint32_t page_table_base_address : 20;
-    } __attribute__((packed));
-} PDE_t;
+typedef struct PDE_t {
+    uint32_t present : 1;
+    uint32_t read_write : 1;
+    uint32_t user_supervisor : 1;
+    uint32_t page_write_through : 1;
+    uint32_t page_cache_disable : 1;
+    uint32_t accessed : 1;
+    uint32_t zero : 1;
+    uint32_t page_size : 1;
+    uint32_t global : 1;
+    uint32_t available : 3;
+    uint32_t page_table_base_address : 20;
+} __attribute__((packed)) PDE_t;
 
-typedef union PTE_t {
-    struct {
-        uint32_t present : 1;
-        uint32_t read_write : 1;
-        uint32_t user_supervisor : 1;
-        uint32_t page_write_through : 1;
-        uint32_t page_cache_disable : 1;
-        uint32_t accessed : 1;
-        uint32_t dirty : 1;
-        uint32_t page_attribute_table : 1;
-        uint32_t global : 1;
-        uint32_t available : 3;
-        uint32_t page_base_address : 20;
-    } __attribute__((packed));
-} PTE_t;
+typedef struct PTE_t {
+    uint32_t present : 1;
+    uint32_t read_write : 1;
+    uint32_t user_supervisor : 1;
+    uint32_t page_write_through : 1;
+    uint32_t page_cache_disable : 1;
+    uint32_t accessed : 1;
+    uint32_t dirty : 1;
+    uint32_t page_attribute_table : 1;
+    uint32_t global : 1;
+    uint32_t available : 3;
+    uint32_t page_base_address : 20;
+} __attribute__((packed)) PTE_t;
 
 extern PDE_t page_directory[1024];
 
