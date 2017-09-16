@@ -2,6 +2,7 @@
  */
 
 #include "filesystem.h"
+#include "process.h"
 #include "lib.h"
 
 filesystem_t* filesystem;
@@ -60,8 +61,12 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry) {
     return 0;
 }
 
-inode_t* get_inode_by_index(uint32_t index) {
+inode_t* index_to_inode(uint32_t index) {
     return filesystem->inode_block + index;
+}
+
+uint32_t inode_to_index(inode_t* inode) {
+    return inode - filesystem->inode_block;
 }
 
 int32_t read_dir(int32_t fd, int8_t* buf, int32_t nbytes) {
@@ -81,7 +86,19 @@ int32_t close_dir() {
 }
 
 int32_t read_file(int32_t fd, int8_t* buf, int32_t nbytes) {
-    return -1;
+    pcb_t* current_process = get_current_process();
+
+    uint32_t index = inode_to_index(current_process->fd_array[fd].inode);
+    uint32_t offset = current_process->fd_array[fd].file_pos;
+
+    uint32_t nbytes_read = read_data(index, offset, (uint8_t*)buf, nbytes);
+    if (nbytes_read < nbytes) {
+        current_process->fd_array[fd].file_pos = 0;
+        return 0;
+    } else {
+        current_process->fd_array[fd].file_pos += nbytes_read;
+        return nbytes_read;
+    }
 }
 
 int32_t write_file(const int8_t* buf, int32_t nbytes) {

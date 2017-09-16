@@ -145,7 +145,7 @@ int32_t open(const uint8_t* fname) {
             return -1;
     }
 
-    current_process->fd_array[fd].inode = get_inode_by_index(file.inode_index);
+    current_process->fd_array[fd].inode = index_to_inode(file.inode_index);
     current_process->fd_array[fd].file_pos = 0;
     current_process->fd_array[fd].flags = 1;
 
