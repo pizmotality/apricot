@@ -226,7 +226,10 @@ int32_t vidmap(uint8_t** screen_start) {
     if ((uint32_t)screen_start < VMEM_USER || (uint32_t)screen_start & 0xF7C00000)
         return -1;
 
-    map_memory_page(VMEM_VIDEO_USER, PMEM_VIDEO + current_process->tty * MEM_PAGE, USER, page_table_user);
+    uint32_t video_memory = 0;
+    if (current_tty == current_process->tty) { video_memory = PMEM_VIDEO; }
+    else { video_memory = PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE; }
+    map_memory_page(VMEM_VIDEO_USER, video_memory, USER, page_table_user);
     *screen_start = (uint8_t*)VMEM_VIDEO_USER;
 
     return 0;
