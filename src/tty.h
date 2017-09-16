@@ -23,6 +23,8 @@
 #define KEY_PRESS_ENTER             0x1C
 #define KEY_PRESS_BACKSPACE         0x0E
 
+#define KEY_PRESS_C                 0x2E
+
 #define NTTY    3
 
 typedef struct tty_t {

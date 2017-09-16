@@ -11,10 +11,11 @@
 #include "pit.h"
 #include "keyboard.h"
 #include "rtc.h"
-#include "system_call.h"
 #include "filesystem.h"
 #include "tty.h"
 #include "process.h"
+#include "system_call.h"
+#include "signal.h"
 #include "debug.h"
 
 /* Macros. */

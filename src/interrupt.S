@@ -37,15 +37,7 @@
     pushl   %ecx
     pushl   %ebx
     call    handle_\INT
-    popl    %ebx
-    popl    %ecx
-    popl    %edx
-    popl    %esi
-    popl    %edi
-    popl    %ebp
-    popl    %eax
-    addl    $4, %esp
-    iret
+    jmp     check_signal
 .endm
 
 .macro HANDLE_INT_ERRCODE INT
@@ -58,15 +50,7 @@
     pushl   %ecx
     pushl   %ebx
     call    handle_\INT
-    popl    %ebx
-    popl    %ecx
-    popl    %edx
-    popl    %esi
-    popl    %edi
-    popl    %ebp
-    popl    %eax
-    addl    $4, %esp
-    iret
+    jmp     check_signal
 .endm
 
 HANDLE_INT divide_error
@@ -109,8 +93,6 @@ system_call_vector:
 
 system_call:
     decl    %eax
-    cmpl    $(NUMBER_SYSTEM_CALL), %eax
-    jae     invalid_system_call
 
     pushl   $0
     pushl   %eax
@@ -120,16 +102,40 @@ system_call:
     pushl   %edx
     pushl   %ecx
     pushl   %ebx
+
+    cmpl    $(NUMBER_SYSTEM_CALL), %eax
+    jae     invalid_system_call
+
     call    *system_call_vector(, %eax, 4)
+    movl    %eax, 24(%esp)
+    jmp     check_signal
+
+invalid_system_call:
+    movl    $-1, 24(%esp)
+
+.align 4
+check_signal:
+    cmpl    $0x8000000, 44(%esp)
+    jb      return_from_interrupt
+
+    call    deliver_signal
+
+return_from_interrupt:
     popl    %ebx
     popl    %ecx
-    popl    %ebx
+    popl    %edx
     popl    %esi
     popl    %edi
     popl    %ebp
-    addl    $8, %esp
+    popl    %eax
+    addl    $4, %esp
     iret
 
-invalid_system_call:
-    movl    $-1, %eax
-    iret
+.globl execute_sigreturn
+
+.align 8
+execute_sigreturn:
+    movl    $0xa, %eax
+    int     $0x80
+
+.align 8

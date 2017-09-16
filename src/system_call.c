@@ -2,8 +2,9 @@
  */
 
 #include "system_call.h"
-#include "filesystem.h"
+#include "signal.h"
 #include "process.h"
+#include "filesystem.h"
 #include "memory.h"
 #include "page.h"
 #include "x86_desc.h"
@@ -33,14 +34,13 @@ int32_t halt(uint8_t status) {
         tss.esp0 = KERNEL_VMEM_BASE - current_process->pid * STACK_SIZE;
     }
 
-    asm volatile("                      \n\
-                 xorl   %%eax, %%eax    \n\
-                 movl   %0, %%eax       \n\
-                 movl   %1, %%esp       \n\
-                 movl   %2, %%ebp       \n\
-                 movl   %3, 4(%%ebp)    \n\
-                 leave                  \n\
-                 ret                    \n\
+    asm volatile("                          \n\
+                 xorl   %%eax, %%eax        \n\
+                 movl   %0, %%eax           \n\
+                 movl   %1, %%esp           \n\
+                 movl   %2, %%ebp           \n\
+                 movl   %3, 4(%%ebp)        \n\
+                 jmp    return_from_halt    \n\
                  "
                  :
                  : "r"(return_value), "r"(esp), "r"(ebp), "r"(return_address)
@@ -111,6 +111,11 @@ int32_t execute(const uint8_t* command) {
     current_process->fd_array[1].fops_array = &stdout;
     current_process->fd_array[1].flags = FDOPEN | FDWRITE;
 
+    current_process->signum = 0;
+    current_process->sigmask = 0;
+    for (i = 0; i < NSIGNAL; ++i)
+        current_process->sighandlers[i] = 0;
+
     cli();
 
     disable_paging();
@@ -137,6 +142,7 @@ int32_t execute(const uint8_t* command) {
                  movw   $0x002B, %%dx   \n\
                  movw   %%dx, %%ds      \n\
                  iret                   \n\
+                 return_from_halt:      \n\
                  "
                  :
                  : "r"(entry_point)
@@ -228,6 +234,11 @@ int32_t vidmap(uint8_t** screen_start) {
 }
 
 int32_t set_handler(int32_t signum, void* handler_address) {
+    if ((uint32_t)signum < NSIGNAL) {
+        current_process->sighandlers[signum] = handler_address;
+        return 0;
+    }
+
     return -1;
 }
 

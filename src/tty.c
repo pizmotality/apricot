@@ -2,6 +2,7 @@
  */
 
 #include "tty.h"
+#include "signal.h"
 #include "lib.h"
 
 static int8_t line_buffer[LINE_BUFFER_SIZE];
@@ -81,6 +82,12 @@ void handle_key_event(uint32_t key_event) {
             if (line_buffer_index) {
                 line_buffer[--line_buffer_index] = '\0';
                 backspace();
+            }
+            break;
+        case KEY_PRESS_C:
+            if (flag_ctrl) {
+                queue_signal(SIGINT);
+                return;
             }
             break;
     }

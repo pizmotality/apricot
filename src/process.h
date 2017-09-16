@@ -4,6 +4,7 @@
 #ifndef _PROCESS_H
 #define _PROCESS_H
 
+#include "signal.h"
 #include "types.h"
 
 typedef struct fops_t {
@@ -48,8 +49,9 @@ typedef struct pcb_t {
     pcb_t* parent;
     uint8_t args[128];
     fd_t fd_array[NFD];
-    /* signal info */
-    /* memory info */
+    uint32_t signum;
+    uint32_t sigmask;
+    uint32_t* sighandlers[NSIGNAL];
 } pcb_t;
 
 #define NPROCESS    6
