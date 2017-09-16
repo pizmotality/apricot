@@ -7,6 +7,23 @@
 #include "types.h"
 
 #define NPROCESS    4
+#define NFD         8
+
+typedef struct fops_t {
+    int32_t (*open)();
+    int32_t (*close)();
+    int32_t (*read)(int32_t, int8_t*, int32_t);
+    int32_t (*write)(const int8_t*, int32_t);
+} fops_t;
+
+struct inode_t;
+
+typedef struct fd_t {
+    fops_t* fops_array;
+    struct inode_t* inode;
+    uint32_t file_pos;
+    uint32_t flags;
+} fd_t;
 
 typedef struct pcb_t pcb_t;
 
@@ -17,7 +34,7 @@ typedef struct pcb_t {
     uint32_t return_address;
     pcb_t* parent;
     uint8_t args[128];
-    /* file structure */
+    fd_t fd_array[8];
     /* signal info */
     /* memory info */
 } pcb_t;
