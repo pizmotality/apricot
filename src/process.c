@@ -11,6 +11,7 @@ void init_pcb() {
     uint32_t i;
     for (i = 0; i < N_PROCESS; ++i) {
         process_control_block[i] = (pcb_t*)(KERNEL_MEM_VIRT + BLOCK_4MB - STACK_SIZE * (i + 1));
+        process_control_block[i]->state = 0;
     }
 
     current_process = 0;
