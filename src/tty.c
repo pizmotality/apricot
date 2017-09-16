@@ -101,13 +101,11 @@ void handle_key_event(uint32_t key_event) {
 int32_t read_tty(int32_t fd, int8_t* buf, int32_t nbytes) {
     while (!(ttys[current_tty].flags & 0x1));
 
-    cli();
     uint32_t length = strlen_tty(line_buffer);
     if (length > nbytes)
         length = nbytes;
 
     strncpy(buf, line_buffer, length);
-    sti();
 
     cli();
     memmove(line_buffer, line_buffer + length, LINE_BUFFER_SIZE - length);
