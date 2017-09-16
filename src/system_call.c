@@ -2,6 +2,7 @@
  */
 
 #include "system_call.h"
+#include "filesystem.h"
 #include "process.h"
 #include "terminal.h"
 #include "memory.h"
@@ -14,9 +15,18 @@ int32_t halt(uint8_t status) {
 }
 
 int32_t execute(const uint8_t* command) {
-    /* check if file exists */
+    /* parse arguments */
+
+    dentry_t executable;
+    if (read_dentry_by_name(command, &executable)) {
+        printf("executable not found\n");
+        return -1;
+    }
 
     /* check if file is executable */
+    uint8_t header[4];
+    if (read_data(executable.inode_index, 0, header, 4) != 4)
+        return -1;
 
     int32_t pid = get_available_pid();
     if (pid < 0)
@@ -61,7 +71,7 @@ int32_t execute(const uint8_t* command) {
     setup_user_page(pid);
     enable_paging();
 
-    /* read data */
+    read_data(executable.inode_index, 0, (uint8_t*)0x8048000, 0x400000);
     uint32_t* entry_point = (uint32_t*)(*(uint32_t*)0x8048018);
 
     tss.ss0 = KERNEL_DS;
