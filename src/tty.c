@@ -72,9 +72,9 @@ void switch_tty(uint32_t target) {
     memcpy((uint8_t*)PMEM_VIDEO, (uint8_t*)(PMEM_VIDEO_BUFFER + target * MEM_PAGE), MEM_PAGE);
 
     if (current_tty == current_process->tty)
-        map_memory_page(VMEM_VIDEO, PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE, SUPERVISOR, page_table_user);
+        map_memory_page(VMEM_VIDEO, PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE, SUPERVISOR, page_table);
     if (target == current_process->tty)
-        map_memory_page(VMEM_VIDEO, PMEM_VIDEO, SUPERVISOR, page_table_user);
+        map_memory_page(VMEM_VIDEO, PMEM_VIDEO, SUPERVISOR, page_table);
     /* remap VMEM_VIDEO_USER if mapped */
     /* list of mapped user pages per process is required */
 
