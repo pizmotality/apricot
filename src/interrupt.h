@@ -27,4 +27,6 @@ void pit();
 void keyboard();
 void rtc();
 
+void system_call();
+
 #endif /* _INTERRUPT_H */

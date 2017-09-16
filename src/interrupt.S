@@ -24,6 +24,8 @@
 .globl keyboard
 .globl rtc
 
+.globl system_call
+
 .macro HANDLE_INT INT
 \INT :
     pushal
@@ -63,3 +65,40 @@ HANDLE_INT simd_floating_point_exception
 HANDLE_INT pit
 HANDLE_INT keyboard
 HANDLE_INT rtc
+
+#define NUMBER_SYSTEM_CALL  6
+
+.align 4
+system_call_vector:
+.long   halt
+.long   execute
+.long   read
+.long   write
+.long   open
+.long   close
+
+system_call:
+    decl    %eax
+    cmpl    $(NUMBER_SYSTEM_CALL), %eax
+    jae     invalid_system_call
+
+    pushl   %eax
+    pushl   %ebp
+    pushl   %edi
+    pushl   %esi
+    pushl   %edx
+    pushl   %ecx
+    pushl   %ebx
+    call    *system_call_vector(, %eax, 4)
+    popl    %ebx
+    popl    %ecx
+    popl    %ebx
+    popl    %esi
+    popl    %edi
+    popl    %ebp
+    addl    $4, %esp
+    iret
+
+invalid_system_call:
+    movl    $-1, %eax
+    iret

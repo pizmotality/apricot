@@ -7,7 +7,7 @@
 #define INT_PIT         0x20
 #define INT_KEYBOARD    0x21
 #define INT_RTC         0x28
-#define INT_SYSCALL     0x80
+#define INT_SYSTEM_CALL 0x80
 
 void init_idt();
 

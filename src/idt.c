@@ -77,7 +77,7 @@ void init_idt() {
     idt[INT_RTC] = interrupt_gate;
     SET_IDT_ENTRY(idt[INT_RTC], rtc);
 
-    // idt[INT_SYSCALL] = trap_gate;
-    // idt[INT_SYSCALL].dpl = 3;
-    // SET_IDT_ENTRY(idt[INT_SYSCAL], system_call);
+    idt[INT_SYSTEM_CALL] = trap_gate;
+    idt[INT_SYSTEM_CALL].dpl = 3;
+    SET_IDT_ENTRY(idt[INT_SYSTEM_CALL], system_call);
 }

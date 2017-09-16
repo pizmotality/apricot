@@ -11,6 +11,7 @@
 #include "pit.h"
 #include "keyboard.h"
 #include "rtc.h"
+#include "system_call.h"
 #include "debug.h"
 
 /* Macros. */
