@@ -6,7 +6,7 @@
 
 #include "types.h"
 
-#define N_PROCESS   4
+#define NPROCESS    4
 
 typedef struct pcb_t pcb_t;
 

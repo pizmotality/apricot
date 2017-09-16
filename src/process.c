@@ -4,12 +4,12 @@
 #include "process.h"
 #include "memory.h"
 
-pcb_t* process_control_block[N_PROCESS];
+pcb_t* process_control_block[NPROCESS];
 pcb_t* current_process;
 
 void init_process() {
     uint32_t i;
-    for (i = 0; i < N_PROCESS; ++i) {
+    for (i = 0; i < NPROCESS; ++i) {
         process_control_block[i] = (pcb_t*)(KERNEL_VMEM_BASE - STACK_SIZE * (i + 1));
         process_control_block[i]->state = 0;
     }
@@ -19,12 +19,12 @@ void init_process() {
 
 int32_t get_available_pid() {
     int32_t pid;
-    for (pid = 0; pid < N_PROCESS; ++pid) {
+    for (pid = 0; pid < NPROCESS; ++pid) {
         if (!process_control_block[pid]->state)
             break;
     }
 
-    if (pid == N_PROCESS)
+    if (pid == NPROCESS)
         return -1;
 
     return pid;

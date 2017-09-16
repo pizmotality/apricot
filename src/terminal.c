@@ -12,7 +12,7 @@ void init_terminal() {
     uint32_t i;
     for (i = 0; i < N_TERMINAL; ++i) {
         terminal[i].status = 0;
-        terminal[i].n_process = 0;
+        terminal[i].nprocess = 0;
     }
 
     current_terminal = 0;
