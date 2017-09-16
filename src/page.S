@@ -4,7 +4,7 @@
 .text
 
 .globl  page_directory
-.globl  page_table_video, page_table_video_user
+.globl  page_table, page_table_user
 
 .globl  init_paging
 .globl  enable_paging, disable_paging
@@ -16,13 +16,13 @@ page_directory:
     .endr
 
     .align 4096
-page_table_video:
+page_table:
     .rept 1024
     .long 0
     .endr
 
     .align 4096
-page_table_video_user:
+page_table_user:
     .rept 1024
     .long 0
     .endr

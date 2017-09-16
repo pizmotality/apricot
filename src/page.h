@@ -40,8 +40,8 @@ typedef union PTE_t {
 
 extern PDE_t page_directory[1024];
 
-extern PTE_t page_table_video[1024];
-extern PTE_t page_table_video_user[1024];
+extern PTE_t page_table[1024];
+extern PTE_t page_table_user[1024];
 
 extern void init_paging(uint32_t page_directory_address);
 extern void enable_paging();

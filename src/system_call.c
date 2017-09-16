@@ -65,7 +65,7 @@ int32_t execute(const uint8_t* command) {
     uint32_t* entry_point = (uint32_t*)(*(uint32_t*)0x8048018);
 
     tss.ss0 = KERNEL_DS;
-    tss.esp0 = KERNEL_BASE_ADDRESS - pid * STACK_SIZE;
+    tss.esp0 = KERNEL_MEM_VIRT + BLOCK_4MB - pid * STACK_SIZE;
 
     asm volatile("                      \n\
                  pushl  $0x002B         \n\

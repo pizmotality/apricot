@@ -9,8 +9,10 @@ pcb_t* current_process;
 
 void init_pcb() {
     uint32_t i;
-    for (i = 0; i < N_PROCESS; ++i)
-        process_control_block[i] = (pcb_t*)(KERNEL_BASE_ADDRESS - STACK_SIZE * (i + 1));
+    for (i = 0; i < N_PROCESS; ++i) {
+        process_control_block[i] = (pcb_t*)(KERNEL_MEM_VIRT + BLOCK_4MB - STACK_SIZE * (i + 1));
+    }
+
     current_process = 0;
 }
 
