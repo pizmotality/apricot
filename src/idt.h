@@ -4,10 +4,10 @@
 #ifndef _IDT_H
 #define _IDT_H
 
-#define IRQ_PIT         0x20
-#define IRQ_KEYBOARD    0x21
-#define IRQ_RTC         0x28
-#define IRQ_SYSCALL     0x80
+#define INT_PIT         0x20
+#define INT_KEYBOARD    0x21
+#define INT_RTC         0x28
+#define INT_SYSCALL     0x80
 
 void init_idt();
 

@@ -68,16 +68,16 @@ void init_idt() {
     idt[19] = interrupt_gate;
     SET_IDT_ENTRY(idt[19], simd_floating_point_exception);
 
-    // idt[IRQ_PIT] = interrupt_gate;
-    // SET_IDT_ENTRY(idt[IRQ_PIT], timer);
+    idt[INT_PIT] = interrupt_gate;
+    SET_IDT_ENTRY(idt[INT_PIT], pit);
 
-    // idt[IRQ_KEYBOARD] = interrupt_gate;
-    // SET_IDT_ENTRY(idt[IRQ_KEYBOARD], keyboard);
+    // idt[INT_KEYBOARD] = interrupt_gate;
+    // SET_IDT_ENTRY(idt[INT_KEYBOARD], keyboard);
 
-    // idt[IRQ_RTC] = interrupt_gate;
-    // SET_IDT_ENTRY(idt[IRQ_RTC], rtc);
+    // idt[INT_RTC] = interrupt_gate;
+    // SET_IDT_ENTRY(idt[INT_RTC], rtc);
 
-    // idt[IRQ_SYSCALL] = trap_gate;
-    // idt[IRQ_SYSCALL].dpl = 3;
-    // SET_IDT_ENTRY(idt[IRQ_SYSCAL], system_call);
+    // idt[INT_SYSCALL] = trap_gate;
+    // idt[INT_SYSCALL].dpl = 3;
+    // SET_IDT_ENTRY(idt[INT_SYSCAL], system_call);
 }
