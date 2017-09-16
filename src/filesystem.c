@@ -60,14 +60,6 @@ int32_t read_dentry_by_index(uint32_t index, dentry_t* dentry) {
     return 0;
 }
 
-int32_t open_dir() {
-    return -1;
-}
-
-int32_t close_dir() {
-    return -1;
-}
-
 int32_t read_dir(int32_t fd, int8_t* buf, int32_t nbytes) {
     return -1;
 }
@@ -76,11 +68,11 @@ int32_t write_dir(const int8_t* buf, int32_t nbytes) {
     return -1;
 }
 
-int32_t open_file() {
+int32_t open_dir() {
     return -1;
 }
 
-int32_t close_file() {
+int32_t close_dir() {
     return -1;
 }
 
@@ -89,5 +81,13 @@ int32_t read_file(int32_t fd, int8_t* buf, int32_t nbytes) {
 }
 
 int32_t write_file(const int8_t* buf, int32_t nbytes) {
+    return -1;
+}
+
+int32_t open_file() {
+    return -1;
+}
+
+int32_t close_file() {
     return -1;
 }

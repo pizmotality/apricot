@@ -29,9 +29,9 @@ void init_tty();
 
 void handle_key_event(uint32_t key_event);
 
-int32_t open_tty();
-int32_t close_tty();
 int32_t read_tty(int32_t fd, int8_t* buf, int32_t nbytes);
 int32_t write_tty(const int8_t* buf, int32_t nbytes);
+int32_t open_tty();
+int32_t close_tty();
 
 #endif /* _TTY_H */

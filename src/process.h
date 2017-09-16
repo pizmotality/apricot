@@ -10,10 +10,10 @@
 #define NFD         8
 
 typedef struct fops_t {
-    int32_t (*open)();
-    int32_t (*close)();
     int32_t (*read)(int32_t, int8_t*, int32_t);
     int32_t (*write)(const int8_t*, int32_t);
+    int32_t (*open)();
+    int32_t (*close)();
 } fops_t;
 
 struct inode_t;

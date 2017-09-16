@@ -14,17 +14,17 @@ fops_t fops_dir;
 fops_t fops_file;
 
 #define _SET_IO_FOPS(IO) {                  \
-    IO.open = &open_tty;                    \
-    IO.close = &close_tty;                  \
     IO.read = &read_tty;                    \
     IO.write = &write_tty;                  \
+    IO.open = &open_tty;                    \
+    IO.close = &close_tty;                  \
 }
 
 #define _SET_FOPS(FTYPE) {                  \
-    fops_##FTYPE.open = &open_##FTYPE;      \
-    fops_##FTYPE.close = &close_##FTYPE;    \
     fops_##FTYPE.read = &read_##FTYPE;      \
     fops_##FTYPE.write = &write_##FTYPE;    \
+    fops_##FTYPE.open = &open_##FTYPE;      \
+    fops_##FTYPE.close = &close_##FTYPE;    \
 }
 
 pcb_t* process_control_block[NPROCESS];

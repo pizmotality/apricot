@@ -27,19 +27,19 @@ void handle_rtc() {
     sti();
 }
 
-int32_t open_rtc() {
-    return -1;
-}
-
-int32_t close_rtc() {
-    return -1;
-}
-
 int32_t read_rtc(int32_t fd, int8_t* buf, int32_t nbytes) {
     return -1;
 }
 
 int32_t write_rtc(const int8_t* buf, int32_t nbytes) {
+    return -1;
+}
+
+int32_t open_rtc() {
+    return -1;
+}
+
+int32_t close_rtc() {
     return -1;
 }
 

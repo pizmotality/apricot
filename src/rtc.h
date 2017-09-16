@@ -27,10 +27,10 @@ void init_rtc();
 
 void handle_rtc();
 
-int32_t open_rtc();
-int32_t close_rtc();
 int32_t read_rtc(int32_t fd, int8_t* buf, int32_t nbytes);
 int32_t write_rtc(const int8_t* buf, int32_t nbytes);
+int32_t open_rtc();
+int32_t close_rtc();
 
 void set_rtc_freq(uint32_t freq);
 

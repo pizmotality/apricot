@@ -91,18 +91,18 @@ void clear_line_buffer() {
     line_buffer_index = 0;
 }
 
-int32_t open_tty() {
-        return -1;
-}
-
-int32_t close_tty() {
-        return -1;
-}
-
 int32_t read_tty(int32_t fd, int8_t* buf, int32_t nbytes) {
         return -1;
 }
 
 int32_t write_tty(const int8_t* buf, int32_t nbytes) {
+        return -1;
+}
+
+int32_t open_tty() {
+        return -1;
+}
+
+int32_t close_tty() {
         return -1;
 }
