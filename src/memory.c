@@ -13,7 +13,7 @@ extern void setup_kernel_page() {
     page_directory[1].zero = 0;
     page_directory[1].page_size = 1;
     page_directory[1].global = 1;
-    page_directory[1].page_table_base_address = KERNEL_MEM;
+    page_directory[1].page_table_base_address = KERNEL_MEM_ADDRESS >> 12;
 }
 
 extern void setup_kernel_video_page() {
@@ -27,14 +27,14 @@ extern void setup_kernel_video_page() {
     page_directory[0].global = 0;
     page_directory[0].page_table_base_address = (uint32_t)page_table_video >> 12;
 
-    page_table_video[VIDEO_MEM].present = 1;
-    page_table_video[VIDEO_MEM].read_write = 1;
-    page_table_video[VIDEO_MEM].user_supervisor = 1;
-    page_table_video[VIDEO_MEM].page_write_through = 0;
-    page_table_video[VIDEO_MEM].dirty = 1;
-    page_table_video[VIDEO_MEM].page_attribute_table = 0;
-    page_table_video[VIDEO_MEM].global = 0;
-    page_table_video[VIDEO_MEM].page_base_address = VIDEO_MEM;
+    page_table_video[VIDEO_MEM_INDEX].present = 1;
+    page_table_video[VIDEO_MEM_INDEX].read_write = 1;
+    page_table_video[VIDEO_MEM_INDEX].user_supervisor = 1;
+    page_table_video[VIDEO_MEM_INDEX].page_write_through = 0;
+    page_table_video[VIDEO_MEM_INDEX].dirty = 1;
+    page_table_video[VIDEO_MEM_INDEX].page_attribute_table = 0;
+    page_table_video[VIDEO_MEM_INDEX].global = 0;
+    page_table_video[VIDEO_MEM_INDEX].page_base_address = VIDEO_MEM_ADDRESS >> 12;
 }
 
 extern void setup_user_page() {
@@ -46,7 +46,7 @@ extern void setup_user_page() {
     page_directory[32].zero = 0;
     page_directory[32].page_size = 1;
     page_directory[32].global = 0;
-    page_directory[32].page_table_base_address = USER_MEM;
+    page_directory[32].page_table_base_address = USER_MEM_ADDRESS >> 12;
 }
 
 extern void setup_user_video_page() {
@@ -60,12 +60,12 @@ extern void setup_user_video_page() {
     page_directory[33].global = 0;
     page_directory[33].page_table_base_address = (uint32_t)page_table_video_user >> 12;
 
-    page_table_video[VIDEO_MEM].present = 1;
-    page_table_video[VIDEO_MEM].read_write = 1;
-    page_table_video[VIDEO_MEM].user_supervisor = 1;
-    page_table_video[VIDEO_MEM].page_write_through = 0;
-    page_table_video[VIDEO_MEM].dirty = 1;
-    page_table_video[VIDEO_MEM].page_attribute_table = 0;
-    page_table_video[VIDEO_MEM].global = 0;
-    page_table_video[VIDEO_MEM].page_base_address = VIDEO_MEM;
+    page_table_video[VIDEO_MEM_INDEX].present = 1;
+    page_table_video[VIDEO_MEM_INDEX].read_write = 1;
+    page_table_video[VIDEO_MEM_INDEX].user_supervisor = 1;
+    page_table_video[VIDEO_MEM_INDEX].page_write_through = 0;
+    page_table_video[VIDEO_MEM_INDEX].dirty = 1;
+    page_table_video[VIDEO_MEM_INDEX].page_attribute_table = 0;
+    page_table_video[VIDEO_MEM_INDEX].global = 0;
+    page_table_video[VIDEO_MEM_INDEX].page_base_address = VIDEO_MEM_ADDRESS >> 12;
 }
