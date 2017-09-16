@@ -66,7 +66,7 @@ HANDLE_INT pit
 HANDLE_INT keyboard
 HANDLE_INT rtc
 
-#define NUMBER_SYSTEM_CALL  6
+#define NUMBER_SYSTEM_CALL  10
 
 .align 4
 system_call_vector:
@@ -76,6 +76,10 @@ system_call_vector:
 .long   write
 .long   open
 .long   close
+.long   getargs
+.long   vidmap
+.long   set_handler
+.long   sigreturn
 
 system_call:
     decl    %eax
