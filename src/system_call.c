@@ -11,11 +11,6 @@
 #include "lib.h"
 
 int32_t halt(uint8_t status) {
-    uint32_t return_value = (uint32_t)status;
-    uint32_t esp = current_process->esp;
-    uint32_t ebp = current_process->ebp;
-    uint32_t return_address = current_process->return_address;
-
     current_process->state = 0;
 
     uint32_t i;
@@ -23,6 +18,8 @@ int32_t halt(uint8_t status) {
         if (current_process->fd_array[i].flags & FDOPEN)
             close(i);
     }
+
+    pcb_t* process = current_process;
 
     if (current_process->parent) {
         current_process = current_process->parent;
@@ -35,15 +32,17 @@ int32_t halt(uint8_t status) {
     }
 
     asm volatile("                          \n\
-                 xorl   %%eax, %%eax        \n\
-                 movl   %0, %%eax           \n\
+                 movzbl %0, %%eax           \n\
                  movl   %1, %%esp           \n\
                  movl   %2, %%ebp           \n\
                  movl   %3, 4(%%ebp)        \n\
                  jmp    return_from_halt    \n\
                  "
                  :
-                 : "r"(return_value), "r"(esp), "r"(ebp), "r"(return_address)
+                 : "r"(status),
+                   "r"(process->esp),
+                   "r"(process->ebp),
+                   "r"(process->return_address)
                  :
                  );
 
@@ -51,23 +50,20 @@ int32_t halt(uint8_t status) {
 }
 
 int32_t execute(const uint8_t* command) {
-    uint8_t binary[64];
-
-    // assume strlen(binary) < 64
     uint32_t i;
-    for (i = 0; ; ++i) {
-        if (command[i] == ' ' || command[i] == '\0' || command[i] == '\n') {
-            strncpy((int8_t*)binary, (int8_t*)command, i);
-            binary[i] = '\0';
+    for (i = 0; i < 63; ++i) {
+        if (command[i] == ' ' || command[i] == '\0' || command[i] == '\n')
             break;
-        }
     }
+
+    uint8_t binary[64];
+    /* truncate binary name to 63 bytes */
+    strncpy((int8_t*)binary, (int8_t*)command, i);
+    binary[i] = '\0';
 
     dentry_t executable;
-    if (read_dentry_by_name(binary, &executable)) {
-        printf("executable not found\n");
+    if (read_dentry_by_name(binary, &executable))
         return -1;
-    }
 
     /* check if file is executable */
     uint8_t header[4];
@@ -81,32 +77,26 @@ int32_t execute(const uint8_t* command) {
         return -1;
 
     pcb_t* parent_process = current_process;
+
     current_process = pcb[pid];
     current_process->pid = pid;
-
     current_process->parent = parent_process;
     current_process->state = 1;
 
-    if (strlen((int8_t*)command) == i++)
-        current_process->args[0] = '\0';
-    else
-        strncpy((int8_t*)current_process->args, (int8_t*)command + i, 128);
+    current_process->args[0] = '\0';
+    if (command[i++] == ' ')
+        strncpy((int8_t*)current_process->args, (int8_t*)command + i, 128 - i);
 
-    uint32_t esp;
-    uint32_t ebp;
-    uint32_t return_address;
     asm volatile("                      \n\
                  leal   4(%%ebp), %0    \n\
                  movl   %%ebp, %1       \n\
                  movl   4(%%ebp), %2    \n\
                  "
-                 : "=c"(esp), "=d"(ebp), "=D"(return_address)
+                 : "=r"(current_process->esp),
+                   "=r"(current_process->ebp),
+                   "=r"(current_process->return_address)
                  :
                  );
-
-    current_process->esp = esp;
-    current_process->ebp = ebp;
-    current_process->return_address = return_address;
 
     current_process->fd_array[0].fops_array = &stdin;
     current_process->fd_array[0].flags = FDOPEN | FDREAD;
@@ -169,10 +159,8 @@ int32_t write(int32_t fd, const void* buf, int32_t nbytes) {
 
 int32_t open(const uint8_t* fname) {
     dentry_t file;
-    if (read_dentry_by_name(fname, &file)) {
-        printf("file no found\n");
+    if (read_dentry_by_name(fname, &file))
         return -1;
-    }
 
     uint32_t fd;
     for (fd = 2; fd < NFD; ++fd) {
