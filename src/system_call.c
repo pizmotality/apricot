@@ -10,7 +10,46 @@
 #include "lib.h"
 
 int32_t halt(uint8_t status) {
-    return -1;
+    pcb_t* current_process = get_current_process();
+
+    uint32_t return_value = (uint32_t)status;
+    uint32_t esp = current_process->esp;
+    uint32_t ebp = current_process->ebp;
+    uint32_t return_address = current_process->return_address;
+
+    current_process->state = 0;
+
+    uint32_t i;
+    for (i = 0; i < 8; ++i) {
+        if (current_process->fd_array[i].flags)
+            close(i);
+        current_process->fd_array[i].flags = 0;
+    }
+
+    if (current_process->parent)
+        current_process = current_process->parent;
+
+    disable_paging();
+    // unmap_memory_block();
+    enable_paging();
+
+    tss.esp0 = KERNEL_VMEM_BASE - current_process->pid * STACK_SIZE;
+
+    asm volatile("                      \n\
+                 xorl   %%eax, %%eax    \n\
+                 movl   %0, %%eax       \n\
+                 movl   %1, %%esp       \n\
+                 movl   %2, %%ebp       \n\
+                 movl   %3, 4(%%ebp)    \n\
+                 leave                  \n\
+                 ret                    \n\
+                 "
+                 :
+                 : "r"(return_value), "r"(esp), "r"(ebp), "r"(return_address)
+                 :
+                 );
+
+    return 0;
 }
 
 int32_t execute(const uint8_t* command) {

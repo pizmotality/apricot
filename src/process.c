@@ -77,4 +77,5 @@ pcb_t* get_process(int32_t pid) {
 
 void set_current_process(int32_t pid) {
     current_process = process_control_block[pid];
+    current_process->pid = pid;
 }
