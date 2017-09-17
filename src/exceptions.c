@@ -6,91 +6,91 @@
 #include "lib.h"
 
 void handle_divide_error() {
-    printf("Divide error\n");
+    kprintf("Divide error\n");
     queue_signal(SIGDIVZ);
 }
 
 void handle_debug() {
-    printf("Debug\n");
+    kprintf("Debug\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_NMI() {
-    printf("NMI\n");
+    kprintf("NMI\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_breakpoint() {
-    printf("Breakpoint\n");
+    kprintf("Breakpoint\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_overflow() {
-    printf("Overflow\n");
+    kprintf("Overflow\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_bound_range_exceeded() {
-    printf("Bound range exceeded\n");
+    kprintf("Bound range exceeded\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_invalid_opcode() {
-    printf("Invalid opcode\n");
+    kprintf("Invalid opcode\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_device_not_available() {
-    printf("Device not available\n");
+    kprintf("Device not available\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_double_fault() {
-    printf("Double fault\n");
+    kprintf("Double fault\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_invalid_tss() {
-    printf("Invalid TSS\n");
+    kprintf("Invalid TSS\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_segment_not_present() {
-    printf("Segment not present\n");
+    kprintf("Segment not present\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_stack_fault() {
-    printf("Stack fault\n");
+    kprintf("Stack fault\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_general_protection() {
-    printf("General protection\n");
+    kprintf("General protection\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_page_fault() {
-    printf("Page fault\n");
+    kprintf("Page fault\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_floating_point_error() {
-    printf("Floating point error\n");
+    kprintf("Floating point error\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_alignment_check() {
-    printf("Alignment check\n");
+    kprintf("Alignment check\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_machine_check() {
-    printf("Machine check\n");
+    kprintf("Machine check\n");
     queue_signal(SIGSEGV);
 }
 
 void handle_simd_floating_point_exception() {
-    printf("SIMD floating point exception\n");
+    kprintf("SIMD floating point exception\n");
     queue_signal(SIGSEGV);
 }

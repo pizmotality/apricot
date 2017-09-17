@@ -41,9 +41,13 @@ typedef struct tty_t {
     uint32_t flags;
 } tty_t;
 
+#define TTY_ACTIVE  0x1
+#define TTY_READ    0x2
+
 extern uint32_t current_tty;
 
 void init_tty();
+void start_tty(uint32_t tty);
 void switch_tty();
 
 void handle_key_event(uint32_t key_event);

@@ -28,11 +28,11 @@ void entry(unsigned long magic, unsigned long addr) {
     multiboot_info_t *mbi;
 
     /* Clear the screen. */
-    clear();
+    kclear();
 
     /* Am I booted by a Multiboot-compliant boot loader? */
     if (magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-        printf("Invalid magic number: 0x%#x\n", (unsigned)magic);
+        kprintf("Invalid magic number: 0x%#x\n", (unsigned)magic);
         return;
     }
 
@@ -40,33 +40,33 @@ void entry(unsigned long magic, unsigned long addr) {
     mbi = (multiboot_info_t *) addr;
 
     /* Print out the flags. */
-    printf("flags = 0x%#x\n", (unsigned)mbi->flags);
+    kprintf("flags = 0x%#x\n", (unsigned)mbi->flags);
 
     /* Are mem_* valid? */
     if (CHECK_FLAG(mbi->flags, 0))
-        printf("mem_lower = %uKB, mem_upper = %uKB\n",
+        kprintf("mem_lower = %uKB, mem_upper = %uKB\n",
             (unsigned)mbi->mem_lower, (unsigned)mbi->mem_upper);
 
     /* Is boot_device valid? */
     if (CHECK_FLAG(mbi->flags, 1))
-        printf("boot_device = 0x%#x\n", (unsigned)mbi->boot_device);
+        kprintf("boot_device = 0x%#x\n", (unsigned)mbi->boot_device);
 
     /* Is the command line passed? */
     if (CHECK_FLAG(mbi->flags, 2))
-        printf("cmdline = %s\n", (char*)mbi->cmdline);
+        kprintf("cmdline = %s\n", (char*)mbi->cmdline);
 
     if (CHECK_FLAG(mbi->flags, 3)) {
         int mod_count = 0;
         int i;
         module_t* mod = (module_t*)mbi->mods_addr;
         while (mod_count < mbi->mods_count) {
-            printf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
-            printf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
-            printf("First few bytes of module:\n");
+            kprintf("Module %d loaded at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_start);
+            kprintf("Module %d ends at address: 0x%#x\n", mod_count, (unsigned int)mod->mod_end);
+            kprintf("First few bytes of module:\n");
             for (i = 0; i < 16; i++) {
-                printf("0x%x ", *((char*)(mod->mod_start+i)));
+                kprintf("0x%x ", *((char*)(mod->mod_start+i)));
             }
-            printf("\n");
+            kprintf("\n");
             mod_count++;
         }
 
@@ -75,7 +75,7 @@ void entry(unsigned long magic, unsigned long addr) {
     }
     /* Bits 4 and 5 are mutually exclusive! */
     if (CHECK_FLAG(mbi->flags, 4) && CHECK_FLAG(mbi->flags, 5)) {
-        printf ("Both bits 4 and 5 are set.\n");
+        kprintf ("Both bits 4 and 5 are set.\n");
         return;
     }
 
@@ -83,7 +83,7 @@ void entry(unsigned long magic, unsigned long addr) {
     if (CHECK_FLAG(mbi->flags, 5)) {
         elf_section_header_table_t* elf_sec = &(mbi->elf_sec);
 
-        printf ("elf_sec: num = %u, size = 0x%#x,"
+        kprintf ("elf_sec: num = %u, size = 0x%#x,"
                 " addr = 0x%#x, shndx = 0x%#x\n",
                 (unsigned)elf_sec->num, (unsigned)elf_sec->size,
                 (unsigned)elf_sec->addr, (unsigned)elf_sec->shndx);
@@ -93,12 +93,12 @@ void entry(unsigned long magic, unsigned long addr) {
     if (CHECK_FLAG(mbi->flags, 6)) {
         memory_map_t* mmap;
 
-        printf("mmap_addr = 0x%#x, mmap_length = 0x%x\n",
+        kprintf("mmap_addr = 0x%#x, mmap_length = 0x%x\n",
                 (unsigned)mbi->mmap_addr, (unsigned)mbi->mmap_length);
         for (mmap = (memory_map_t*)mbi->mmap_addr;
                 (unsigned long)mmap < mbi->mmap_addr + mbi->mmap_length;
                 mmap = (memory_map_t*)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
-            printf(" size = 0x%x,     base_addr = 0x%#x%#x\n"
+            kprintf(" size = 0x%x,     base_addr = 0x%#x%#x\n"
                    "     type = 0x%x,  length    = 0x%#x%#x\n",
                    (unsigned)mmap->size,
                    (unsigned)mmap->base_addr_high,
@@ -158,6 +158,7 @@ void entry(unsigned long magic, unsigned long addr) {
 
     /* Enable paging */
     map_memory_block(VMEM_KERNEL, PMEM_KERNEL, SUPERVISOR);
+    map_memory_page(VMEM_VIDEO_PERSIST, PMEM_VIDEO, SUPERVISOR, page_table);
     map_memory_page(VMEM_VIDEO, PMEM_VIDEO, SUPERVISOR, page_table);
     init_paging((uint32_t)page_directory);
     enable_paging();
@@ -180,7 +181,7 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Do not enable the following until after you have set up your
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
-    printf("Enabling Interrupts\n");
+    kprintf("Enabling Interrupts\n");
     sti();
 
     /* Execute the first program (`shell') ... */

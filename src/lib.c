@@ -2,15 +2,15 @@
  */
 
 #include "lib.h"
+#include "tty.h"
+#include "memory.h"
 
-#define VMEM_VIDEO  0xB8000
 #define NUM_COLS    80
 #define NUM_ROWS    25
 #define ATTRIB      0x7
 
-static int screen_x;
-static int screen_y;
-static char* video_mem = (char*)VMEM_VIDEO;
+static int32_t screen_x[NTTY];
+static int32_t screen_y[NTTY];
 
 #define CURSOR_LOW  0xF
 #define CURSOR_HIGH 0xE
@@ -18,8 +18,14 @@ static char* video_mem = (char*)VMEM_VIDEO;
 #define VGA_INDEX_REGISTER  0x3D4
 #define VGA_DATA_REGISTER   0x3D5
 
-void update_cursor() {
-    uint16_t position = NUM_COLS * screen_y + screen_x;
+static uint8_t* video_mem = (uint8_t*)VMEM_VIDEO;
+static uint8_t* video_mem_persist = (uint8_t*)VMEM_VIDEO_PERSIST;
+
+void update_cursor(uint32_t tty) {
+    if (tty != current_tty)
+        return;
+
+    uint16_t position = NUM_COLS * screen_y[tty] + screen_x[tty];
 
     outb(CURSOR_LOW, VGA_INDEX_REGISTER);
     outb((uint8_t)(position & 0xFF), VGA_DATA_REGISTER);
@@ -27,31 +33,10 @@ void update_cursor() {
     outb((uint8_t)((position >> 8) & 0xFF), VGA_DATA_REGISTER);
 }
 
-void clear(void) {
-    screen_x = 0;
-    screen_y = 0;
-    int32_t i;
-    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
-        *(uint8_t*)(video_mem + (i << 1)) = ' ';
-        *(uint8_t*)(video_mem + (i << 1) + 1) = ATTRIB;
-    }
-
-    update_cursor();
-}
-
-void backspace(void) {
-    screen_x = (screen_x + (NUM_COLS - 1)) % NUM_COLS;
-    if (screen_y) screen_y -= (screen_x / (NUM_COLS - 1));
-    *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = ' ';
-    *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-
-    update_cursor();
-}
-
-void newline(void) {
-    screen_x = 0;
-    if (screen_y != NUM_ROWS - 1) {
-        ++screen_y;
+void newline(uint32_t tty) {
+    screen_x[tty] = 0;
+    if (screen_y[tty] != NUM_ROWS - 1) {
+        ++screen_y[tty];
     } else {
         memmove((uint8_t*)video_mem, (uint8_t*)(video_mem + (NUM_COLS << 1)),
             2 * NUM_COLS * (NUM_ROWS - 1) * sizeof(uint8_t));
@@ -63,10 +48,55 @@ void newline(void) {
         }
     }
 
-    update_cursor();
+    update_cursor(tty);
 }
 
-/* Standard printf().
+void backspace(uint32_t tty) {
+    screen_x[tty] = (screen_x[tty] + (NUM_COLS - 1)) % NUM_COLS;
+    if (screen_y[tty]) screen_y[tty] -= (screen_x[tty] / (NUM_COLS - 1));
+    *(uint8_t*)(video_mem + ((NUM_COLS * screen_y[tty] + screen_x[tty]) << 1)) = ' ';
+    *(uint8_t*)(video_mem + ((NUM_COLS * screen_y[tty] + screen_x[tty]) << 1) + 1) = ATTRIB;
+
+    update_cursor(tty);
+}
+
+/* Output a string to the selected tty */
+int32_t puts(int8_t* s, uint32_t tty) {
+    register int32_t index = 0;
+    while (s[index] != '\0') {
+        putc(s[index], tty);
+        index++;
+    }
+
+    return index;
+}
+
+void putc(uint8_t c, uint32_t tty) {
+    if (c == '\n' || c == '\r') {
+        newline(tty);
+    } else {
+        *(uint8_t*)(video_mem + ((NUM_COLS * screen_y[tty] + screen_x[tty]) << 1)) = c;
+        *(uint8_t*)(video_mem + ((NUM_COLS * screen_y[tty] + screen_x[tty]) << 1) + 1) = ATTRIB;
+        if (++screen_x[tty] == NUM_COLS)
+            newline(tty);
+    }
+
+    update_cursor(tty);
+}
+
+void kclear() {
+    screen_x[current_tty] = 0;
+    screen_y[current_tty] = 0;
+    int32_t i;
+    for (i = 0; i < NUM_ROWS * NUM_COLS; i++) {
+        *(uint8_t*)(video_mem + (i << 1)) = ' ';
+        *(uint8_t*)(video_mem + (i << 1) + 1) = ATTRIB;
+    }
+
+    update_cursor(current_tty);
+}
+
+/* Standard kprintf().
  * Only supports the following format strings:
  * %%  - print a literal '%' character
  * %x  - print a number in hexadecimal
@@ -84,7 +114,7 @@ void newline(void) {
  *       Also note: %x is the only conversion specifier that can use
  *       the "#" modifier to alter output.
  * */
-int32_t printf(int8_t* format, ...) {
+int32_t kprintf(int8_t* format, ...) {
     /* Pointer to the format string */
     int8_t* buf = format;
 
@@ -103,7 +133,7 @@ format_char_switch:
                 switch (*buf) {
                     /* Print a literal '%' character */
                     case '%':
-                        putc('%');
+                        kputc('%');
                         break;
 
                     /* Use alternate formatting */
@@ -120,7 +150,7 @@ format_char_switch:
                         int8_t conv_buf[64];
                         if (alternate == 0) {
                             itoa(*((uint32_t*)esp), conv_buf, 16);
-                            puts(conv_buf);
+                            kputs(conv_buf);
                         } else {
                             int32_t starting_index;
                             int32_t i;
@@ -130,7 +160,7 @@ format_char_switch:
                                 conv_buf[i] = '0';
                                 i++;
                             }
-                            puts(&conv_buf[starting_index]);
+                            kputs(&conv_buf[starting_index]);
                         }
                         esp++; }
                         break;
@@ -139,7 +169,7 @@ format_char_switch:
                     case 'u': {
                         int8_t conv_buf[36];
                         itoa(*((uint32_t*)esp), conv_buf, 10);
-                        puts(conv_buf);
+                        kputs(conv_buf);
                         esp++; }
                         break;
 
@@ -153,19 +183,19 @@ format_char_switch:
                         } else {
                             itoa(value, conv_buf, 10);
                         }
-                        puts(conv_buf);
+                        kputs(conv_buf);
                         esp++; }
                         break;
 
                     /* Print a single character */
                     case 'c':
-                        putc((uint8_t) * ((int32_t*)esp));
+                        kputc((uint8_t) * ((int32_t*)esp));
                         esp++;
                         break;
 
                     /* Print a NULL-terminated string */
                     case 's':
-                        puts(*((int8_t**)esp));
+                        kputs(*((int8_t**)esp));
                         esp++;
                         break;
 
@@ -175,7 +205,7 @@ format_char_switch:
                 break;
 
             default:
-                putc(*buf);
+                kputc(*buf);
                 break;
         }
 
@@ -185,29 +215,31 @@ format_char_switch:
     return (buf - format);
 }
 
-/* Output a string to the console */
-int32_t puts(int8_t* s) {
+/* Output a string to the current tty */
+int32_t kputs(int8_t* s) {
     register int32_t index = 0;
     while (s[index] != '\0') {
-        putc(s[index]);
+        kputc(s[index]);
         index++;
     }
 
     return index;
 }
 
-void putc(uint8_t c) {
+void kputc(uint8_t c) {
     if (c == '\n' || c == '\r') {
-        newline();
+        newline(current_tty);
     } else {
-        *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1)) = c;
-        *(uint8_t*)(video_mem + ((NUM_COLS * screen_y + screen_x) << 1) + 1) = ATTRIB;
-        if (++screen_x == NUM_COLS)
-            newline();
+        *(uint8_t*)(video_mem_persist + ((NUM_COLS * screen_y[current_tty] + screen_x[current_tty]) << 1)) = c;
+        *(uint8_t*)(video_mem_persist + ((NUM_COLS * screen_y[current_tty] + screen_x[current_tty]) << 1) + 1) = ATTRIB;
+        if (++screen_x[current_tty] == NUM_COLS)
+            newline(current_tty);
     }
 
-    update_cursor();
+    update_cursor(current_tty);
 }
+
+/* Real library functions */
 
 /* Convert a number to its ASCII representation, with base "radix" */
 int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix) {

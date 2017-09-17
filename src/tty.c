@@ -8,13 +8,15 @@
 #include "page.h"
 #include "lib.h"
 
-static int8_t line_buffer[LINE_BUFFER_SIZE];
-static uint32_t line_buffer_index;
+#include "system_call.h"
 
-static inline void clear_line_buffer() __attribute__((always_inline));
-static inline void clear_line_buffer() {
-    memset(line_buffer, '\0', LINE_BUFFER_SIZE * sizeof(uint8_t));
-    line_buffer_index = 0;
+static int8_t line_buffer[NTTY][LINE_BUFFER_SIZE];
+static uint32_t line_buffer_index[NTTY];
+
+static inline void clear_line_buffer(uint32_t tty) __attribute__((always_inline));
+static inline void clear_line_buffer(uint32_t tty) {
+    memset(line_buffer[tty], '\0', LINE_BUFFER_SIZE * sizeof(uint8_t));
+    line_buffer_index[tty] = 0;
 }
 
 static uint8_t key_event_char[0x80] = {
@@ -42,21 +44,33 @@ static uint32_t flag_shift;
 static uint32_t flag_caps;
 
 tty_t ttys[NTTY];
-uint32_t current_tty;
+uint32_t current_tty = 0;
 
 void init_tty() {
-    clear_line_buffer();
-
     flag_ctrl = 0;
     flag_alt = 0;
     flag_shift = 0;
     flag_caps = 0;
 
     uint32_t i;
-    for (i = 0; i < NTTY; ++i)
+    for (i = 0; i < NTTY; ++i) {
+        clear_line_buffer(i);
         ttys[i].flags = 0;
+    }
 
-    current_tty = 0;
+    // current_tty = 0;
+    ttys[current_tty].flags |= TTY_ACTIVE;
+}
+
+void start_tty(uint32_t tty) {
+    ttys[tty].flags |= TTY_ACTIVE;
+
+    current_process = 0;
+    uint8_t* login_shell = (uint8_t*)"shell";
+    execute(login_shell);
+
+    /* ttys[tty].flags &= ~(TTY_ACTIVE); */
+    asm volatile(".2: hlt; jmp .2;");
 }
 
 void switch_tty(uint32_t target) {
@@ -64,10 +78,11 @@ void switch_tty(uint32_t target) {
         return;
 
     cli();
-    disable_paging();
 
+    disable_paging();
     memcpy((uint8_t*)(PMEM_VIDEO_BUFFER + current_tty * MEM_PAGE), (uint8_t*)PMEM_VIDEO, MEM_PAGE);
     memcpy((uint8_t*)PMEM_VIDEO, (uint8_t*)(PMEM_VIDEO_BUFFER + target * MEM_PAGE), MEM_PAGE);
+    enable_paging();
 
     uint32_t video_memory = 0;
     if (target == current_process->tty)
@@ -81,10 +96,10 @@ void switch_tty(uint32_t target) {
             map_memory_page(VMEM_VIDEO_USER, video_memory, USER, page_table_user);
     }
 
-    enable_paging();
     sti();
 
     current_tty = target;
+    update_cursor(current_tty);
 }
 
 void handle_key_event(uint32_t key_event) {
@@ -117,12 +132,12 @@ void handle_key_event(uint32_t key_event) {
             flag_caps ^= 0x1;
             break;
         case KEY_PRESS_ENTER:
-            ttys[current_tty].flags |= 0x1;
+            ttys[current_tty].flags |= TTY_READ;
             break;
         case KEY_PRESS_BACKSPACE:
-            if (line_buffer_index) {
-                line_buffer[--line_buffer_index] = '\0';
-                backspace();
+            if (line_buffer_index[current_tty]) {
+                line_buffer[current_tty][--line_buffer_index[current_tty]] = '\0';
+                backspace(current_tty);
             }
             break;
         case KEY_PRESS_C:
@@ -142,34 +157,34 @@ void handle_key_event(uint32_t key_event) {
     }
 
     if (key_event < 0x40 && key_event_char[key_event]) {
-        if (line_buffer_index == LINE_BUFFER_SIZE) {
-            ttys[current_tty].flags |= 0x1;
-            newline();
+        if (line_buffer_index[current_tty] == LINE_BUFFER_SIZE) {
+            ttys[current_tty].flags |= TTY_READ;
+            newline(current_tty);
         }
 
         if (flag_shift)
             key_event += 0x40;
-        line_buffer[line_buffer_index] = key_event_char[key_event];
-        putc(line_buffer[line_buffer_index++]);
+        line_buffer[current_tty][line_buffer_index[current_tty]] = key_event_char[key_event];
+        kputc(line_buffer[current_tty][line_buffer_index[current_tty]++]);
     }
 }
 
 int32_t read_tty(int32_t fd, int8_t* buf, int32_t nbytes) {
-    while (!(ttys[current_tty].flags & 0x1));
+    while (!(ttys[current_process->tty].flags & TTY_READ));
 
-    uint32_t length = strlen_tty(line_buffer);
+    uint32_t length = strlen_tty(line_buffer[current_process->tty]);
     if (length > nbytes)
         length = nbytes;
 
-    strncpy(buf, line_buffer, length);
+    strncpy(buf, line_buffer[current_process->tty], length);
 
     cli();
-    memmove(line_buffer, line_buffer + length, LINE_BUFFER_SIZE - length);
-    memset(line_buffer + LINE_BUFFER_SIZE - length, '\0', length);
-    line_buffer_index -= length;
+    memmove(line_buffer[current_process->tty], line_buffer[current_process->tty] + length, LINE_BUFFER_SIZE - length);
+    memset(line_buffer[current_process->tty] + LINE_BUFFER_SIZE - length, '\0', length);
+    line_buffer_index[current_process->tty] -= length;
     sti();
 
-    ttys[current_tty].flags &= 0xFFFFFFFE;
+    ttys[current_process->tty].flags &= ~(TTY_READ);
 
     return length;
 }
@@ -181,7 +196,7 @@ int32_t write_tty(const int8_t* buf, int32_t nbytes) {
 
     uint32_t i;
     for (i = 0; i < length; ++i)
-        putc(buf[i]);
+        putc(buf[i], current_process->tty);
 
     return length;
 }

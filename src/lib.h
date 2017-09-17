@@ -6,13 +6,18 @@
 
 #include "types.h"
 
-void clear(void);
-void backspace(void);
-void newline(void);
+void update_cursor(uint32_t tty);
 
-int32_t printf(int8_t* format, ...);
-void putc(uint8_t c);
-int32_t puts(int8_t* s);
+void newline(uint32_t tty);
+void backspace(uint32_t tty);
+int32_t puts(int8_t* s, uint32_t tty);
+void putc(uint8_t c, uint32_t tty);
+
+void kclear();
+int32_t kprintf(int8_t* format, ...);
+int32_t kputs(int8_t* s);
+void kputc(uint8_t c);
+
 int8_t* itoa(uint32_t value, int8_t* buf, int32_t radix);
 int8_t* strrev(int8_t* s);
 uint32_t strlen(const int8_t* s);
