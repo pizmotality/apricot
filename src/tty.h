@@ -13,6 +13,11 @@
 #define KEY_PRESS_RIGHT_CTRL        0xE01D
 #define KEY_RELEASE_RIGHT_CTRL      0xE09D
 
+#define KEY_PRESS_LEFT_ALT          0x38
+#define KEY_RELEASE_LEFT_ALT        0xB8
+#define KEY_PRESS_RIGHT_ALT         0xE038
+#define KEY_RELEASE_RIGHT_ALT       0xE0B8
+
 #define KEY_PRESS_LEFT_SHIFT        0x2A
 #define KEY_RELEASE_LEFT_SHIFT      0xAA
 #define KEY_PRESS_RIGHT_SHIFT       0x36
@@ -25,13 +30,21 @@
 
 #define KEY_PRESS_C                 0x2E
 
+#define TTY_OFFSET                  0x01
+#define KEY_PRESS_1                 0x02
+#define KEY_PRESS_2                 0x03
+#define KEY_PRESS_3                 0x04
+
 #define NTTY    3
 
 typedef struct tty_t {
     uint32_t flags;
 } tty_t;
 
+extern uint32_t current_tty;
+
 void init_tty();
+void switch_tty();
 
 void handle_key_event(uint32_t key_event);
 

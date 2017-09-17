@@ -5,6 +5,7 @@
 #include "signal.h"
 #include "process.h"
 #include "filesystem.h"
+#include "tty.h"
 #include "memory.h"
 #include "page.h"
 #include "x86_desc.h"
@@ -82,6 +83,8 @@ int32_t execute(const uint8_t* command) {
     current_process->pid = pid;
     current_process->parent = parent_process;
     current_process->state = 1;
+
+    current_process->tty = parent_process ? parent_process->tty : current_tty;
 
     current_process->args[0] = '\0';
     if (command[i++] == ' ')
@@ -223,7 +226,7 @@ int32_t vidmap(uint8_t** screen_start) {
     if ((uint32_t)screen_start < VMEM_USER || (uint32_t)screen_start & 0xF7C00000)
         return -1;
 
-    map_memory_page(VMEM_VIDEO_USER, PMEM_VIDEO, USER, page_table_user);
+    map_memory_page(VMEM_VIDEO_USER, PMEM_VIDEO + current_process->tty * MEM_PAGE, USER, page_table_user);
     *screen_start = (uint8_t*)VMEM_VIDEO_USER;
 
     return 0;

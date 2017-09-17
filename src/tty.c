@@ -3,6 +3,9 @@
 
 #include "tty.h"
 #include "signal.h"
+#include "process.h"
+#include "memory.h"
+#include "page.h"
 #include "lib.h"
 
 static int8_t line_buffer[LINE_BUFFER_SIZE];
@@ -34,6 +37,7 @@ static uint8_t key_event_char[0x80] = {
 };
 
 static uint32_t flag_ctrl;
+static uint32_t flag_alt;
 static uint32_t flag_shift;
 static uint32_t flag_caps;
 
@@ -44,6 +48,7 @@ void init_tty() {
     clear_line_buffer();
 
     flag_ctrl = 0;
+    flag_alt = 0;
     flag_shift = 0;
     flag_caps = 0;
 
@@ -51,7 +56,30 @@ void init_tty() {
     for (i = 0; i < NTTY; ++i)
         ttys[i].flags = 0;
 
-    current_tty = 0;
+    current_tty = 1;
+}
+
+void switch_tty(uint32_t target) {
+    if (target == current_tty)
+        return;
+
+    cli();
+    disable_paging();
+
+    memcpy((uint8_t*)(PMEM_VIDEO + current_tty * MEM_PAGE), (uint8_t*)PMEM_VIDEO, MEM_PAGE);
+    memcpy((uint8_t*)PMEM_VIDEO, (uint8_t*)(PMEM_VIDEO + target * MEM_PAGE), MEM_PAGE);
+
+    if (current_tty == current_process->tty)
+        map_memory_page(VMEM_VIDEO, PMEM_VIDEO + current_process->tty * MEM_PAGE, SUPERVISOR, page_table_user);
+    if (target == current_process->tty)
+        map_memory_page(VMEM_VIDEO, PMEM_VIDEO, SUPERVISOR, page_table_user);
+    /* remap VMEM_VIDEO_USER if mapped */
+    /* list of mapped user pages per process is required */
+
+    enable_paging();
+    sti();
+
+    current_tty = target;
 }
 
 void handle_key_event(uint32_t key_event) {
@@ -63,6 +91,14 @@ void handle_key_event(uint32_t key_event) {
         case KEY_RELEASE_LEFT_CTRL:
         case KEY_RELEASE_RIGHT_CTRL:
             --flag_ctrl;
+            break;
+        case KEY_PRESS_LEFT_ALT:
+        case KEY_PRESS_RIGHT_ALT:
+            ++flag_alt;
+            break;
+        case KEY_RELEASE_LEFT_ALT:
+        case KEY_RELEASE_RIGHT_ALT:
+            --flag_alt;
             break;
         case KEY_PRESS_LEFT_SHIFT:
         case KEY_PRESS_RIGHT_SHIFT:
@@ -87,6 +123,14 @@ void handle_key_event(uint32_t key_event) {
         case KEY_PRESS_C:
             if (flag_ctrl) {
                 queue_signal(SIGINT);
+                return;
+            }
+            break;
+        case KEY_PRESS_1:
+        case KEY_PRESS_2:
+        case KEY_PRESS_3:
+            if (flag_ctrl) {
+                switch_tty(key_event - TTY_OFFSET);
                 return;
             }
             break;
