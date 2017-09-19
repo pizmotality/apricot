@@ -149,7 +149,7 @@ void handle_key_event(uint32_t key_event) {
         case KEY_PRESS_1:
         case KEY_PRESS_2:
         case KEY_PRESS_3:
-            if (flag_ctrl) {
+            if (flag_shift) {
                 switch_tty(key_event - TTY_OFFSET);
                 return;
             }
