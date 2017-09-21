@@ -43,9 +43,9 @@ typedef struct pcb_t pcb_t;
 typedef struct pcb_t {
     uint32_t state;
     uint32_t pid;
-    uint32_t esp;
-    uint32_t ebp;
-    uint32_t return_address;
+    uint32_t parent_esp;
+    uint32_t parent_ebp;
+    uint32_t parent_eip;
     pcb_t* parent;
     uint8_t args[128];
     fd_t fd_array[NFD];

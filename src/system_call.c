@@ -42,9 +42,9 @@ int32_t halt(uint8_t status) {
                  "
                  :
                  : "r"(status),
-                   "r"(process->esp),
-                   "r"(process->ebp),
-                   "r"(process->return_address)
+                   "r"(process->parent_esp),
+                   "r"(process->parent_ebp),
+                   "r"(process->parent_eip)
                  :
                  );
 
@@ -98,9 +98,9 @@ int32_t execute(const uint8_t* command) {
                  movl   %%ebp, %1       \n\
                  movl   4(%%ebp), %2    \n\
                  "
-                 : "=r"(current_process->esp),
-                   "=r"(current_process->ebp),
-                   "=r"(current_process->return_address)
+                 : "=r"(current_process->parent_esp),
+                   "=r"(current_process->parent_ebp),
+                   "=r"(current_process->parent_eip)
                  :
                  );
 
