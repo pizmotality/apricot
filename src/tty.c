@@ -44,7 +44,7 @@ static uint32_t flag_shift;
 static uint32_t flag_caps;
 
 tty_t ttys[NTTY];
-uint32_t current_tty = 0;
+uint32_t current_tty;
 
 void init_tty() {
     flag_ctrl = 0;
@@ -57,20 +57,16 @@ void init_tty() {
         clear_line_buffer(i);
         ttys[i].flags = 0;
     }
-
-    // current_tty = 0;
-    ttys[current_tty].flags |= TTY_ACTIVE;
 }
 
 void start_tty(uint32_t tty) {
+    current_tty = tty;
     ttys[tty].flags |= TTY_ACTIVE;
 
-    current_process = 0;
     uint8_t* login_shell = (uint8_t*)"shell";
     execute(login_shell);
 
-    /* ttys[tty].flags &= ~(TTY_ACTIVE); */
-    asm volatile(".2: hlt; jmp .2;");
+    ttys[tty].flags = 0;
 }
 
 void switch_tty(uint32_t target) {

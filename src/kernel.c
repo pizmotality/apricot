@@ -185,8 +185,9 @@ void entry(unsigned long magic, unsigned long addr) {
     sti();
 
     /* Execute the first program (`shell') ... */
-    uint8_t* login_shell = (uint8_t*)"shell";
-    execute(login_shell);
+    /* uint8_t* login_shell = (uint8_t*)"shell"; */
+    /* execute(login_shell); */
+    start_tty(0);
 
     /* Spin (nicely, so we don't chew up cycles) */
     asm volatile(".1: hlt; jmp .1;");
