@@ -166,13 +166,8 @@ void entry(unsigned long magic, unsigned long addr) {
     /* Initialize devices, memory, filesystem, enable device interrupts on the
      * PIC, any other initialization stuff... */
     init_pit();
-    enable_irq(IRQ_PIT);
-
     init_keyboard();
-    enable_irq(IRQ_KEYBOARD);
-
     init_rtc();
-    enable_irq(IRQ_RTC);
 
     init_tty();
     init_process();
@@ -182,6 +177,9 @@ void entry(unsigned long magic, unsigned long addr) {
      * IDT correctly otherwise QEMU will triple fault and simple close
      * without showing you any output */
     kprintf("Enabling Interrupts\n");
+    enable_irq(IRQ_PIT);
+    enable_irq(IRQ_KEYBOARD);
+    enable_irq(IRQ_RTC);
     sti();
 
     /* Execute the first program (`shell') ... */
