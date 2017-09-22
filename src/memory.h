@@ -33,4 +33,6 @@ void map_memory_page(uint32_t virtual, uint32_t physical, uint32_t user_supervis
 #define VMEM_VIDEO_PERSIST  (PMEM_VIDEO)
 #define PMEM_VIDEO_BUFFER   (PMEM_VIDEO + MEM_PAGE)
 
+void remap_memory_video(uint32_t physical);
+
 #endif /* _MEMORY_H */

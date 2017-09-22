@@ -86,11 +86,8 @@ void switch_tty(uint32_t target) {
     else if (current_tty == current_process->tty)
         video_memory = PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE;
 
-    if (video_memory) {
-        map_memory_page(VMEM_VIDEO, video_memory, SUPERVISOR, page_table);
-        if (page_table_user[(VMEM_VIDEO_USER >> 12) & 0x3FF].present)
-            map_memory_page(VMEM_VIDEO_USER, video_memory, USER, page_table_user);
-    }
+    if (video_memory)
+        remap_memory_video(video_memory);
 
     sti();
 
