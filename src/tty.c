@@ -80,14 +80,16 @@ void switch_tty(uint32_t target) {
     memcpy((uint8_t*)PMEM_VIDEO, (uint8_t*)(PMEM_VIDEO_BUFFER + target * MEM_PAGE), MEM_PAGE);
     enable_paging();
 
-    uint32_t video_memory = 0;
-    if (target == current_process->tty)
-        video_memory = PMEM_VIDEO;
-    else if (current_tty == current_process->tty)
-        video_memory = PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE;
+    if (current_process) {
+        uint32_t video_memory = 0;
+        if (target == current_process->tty)
+            video_memory = PMEM_VIDEO;
+        else if (current_tty == current_process->tty)
+            video_memory = PMEM_VIDEO_BUFFER + current_process->tty * MEM_PAGE;
 
-    if (video_memory)
-        remap_memory_video(video_memory);
+        if (video_memory)
+            remap_memory_video(video_memory);
+    }
 
     sti();
 
