@@ -12,6 +12,8 @@ deliver_signal:
     pushl   %ebp
     movl    %esp, %ebp
     movl    current_process, %esi
+    testl   %esi, %esi
+    je      leave_deliver_signal
     movl    0x11c(%esi), %eax
     xorl    %ecx, %ecx
 
