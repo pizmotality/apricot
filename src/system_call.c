@@ -12,7 +12,8 @@
 #include "lib.h"
 
 int32_t halt(uint8_t status) {
-    current_process->state = PAVAIL;
+    current_process->sigmask = SIGMASK_ALL;
+    current_process->sigqueue = 0;
 
     uint32_t i;
     for (i = 0; i < NFD; ++i) {
@@ -21,9 +22,14 @@ int32_t halt(uint8_t status) {
     }
 
     pcb_t* process = current_process;
+    process->state = PAVAIL;
 
-    if (current_process->parent) {
-        current_process = current_process->parent;
+    cli();
+
+    current_process = current_process->parent;
+    if (current_process) {
+        process->parent = 0;
+
         current_process->state |= PACTIVE;
 
         disable_paging();
@@ -32,6 +38,8 @@ int32_t halt(uint8_t status) {
 
         tss.esp0 = VMEM_KERNEL_BASE - STACK_SIZE - current_process->pid * STACK_SIZE;
     }
+
+    sti();
 
     asm volatile("                          \n\
                  movzbl %0, %%eax           \n\
@@ -78,6 +86,8 @@ int32_t execute(const uint8_t* command) {
     if (pid < 0)
         return -1;
 
+    cli();
+
     pcb_t* parent_process = current_process;
     if (parent_process)
         parent_process->state &= ~PACTIVE;
@@ -88,6 +98,8 @@ int32_t execute(const uint8_t* command) {
     current_process->state |= PACTIVE;
 
     current_process->tty = parent_process ? parent_process->tty : current_tty;
+
+    sti();
 
     current_process->args[0] = '\0';
     if (command[i++] == ' ')
