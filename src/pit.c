@@ -2,6 +2,7 @@
  */
 
 #include "pit.h"
+#include "schedule.h"
 #include "i8259.h"
 #include "lib.h"
 
@@ -16,4 +17,8 @@ void handle_pit() {
     send_eoi(IRQ_PIT);
 
     sti();
+
+    int32_t pid = sched_next();
+    if (pid != -1)
+        raise(pid);
 }

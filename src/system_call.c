@@ -100,6 +100,7 @@ int32_t execute(const uint8_t* command) {
         parent_process->state &= ~PACTIVE;
     } else {
         current_process->tty = current_tty;
+        remap_memory_video(PMEM_VIDEO);
     }
 
     sti();

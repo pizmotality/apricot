@@ -60,12 +60,15 @@ void init_tty() {
 }
 
 void start_tty(uint32_t tty) {
+    current_process = 0;
+
     current_tty = tty;
     ttys[tty].flags |= TTY_ACTIVE;
 
     uint8_t* login_shell = (uint8_t*)"shell";
     execute(login_shell);
 
+    current_process = 0;
     ttys[tty].flags = 0;
 }
 
@@ -95,6 +98,19 @@ void switch_tty(uint32_t target) {
 
     current_tty = target;
     update_cursor(current_tty);
+
+    if (!ttys[target].flags) {
+        asm volatile("                  \n\
+                     movl   %%esp, %0   \n\
+                     movl   %%ebp, %1   \n\
+                     "
+                     : "=r"(current_process->esp),
+                       "=r"(current_process->ebp)
+                     :
+                     );
+
+        start_tty(target);
+    }
 }
 
 void handle_key_event(uint32_t key_event) {

@@ -53,6 +53,8 @@ typedef struct pcb_t {
     uint32_t sigqueue;
     uint32_t* sighandlers[NSIGNAL];
     uint32_t tty;
+    uint32_t esp;
+    uint32_t ebp;
 } pcb_t;
 
 #define NPROCESS    6
