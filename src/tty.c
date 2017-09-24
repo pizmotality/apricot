@@ -99,7 +99,7 @@ void switch_tty(uint32_t target) {
     current_tty = target;
     update_cursor(current_tty);
 
-    if (!ttys[target].flags) {
+    if (current_process) {
         asm volatile("                  \n\
                      movl   %%esp, %0   \n\
                      movl   %%ebp, %1   \n\
@@ -108,9 +108,10 @@ void switch_tty(uint32_t target) {
                        "=r"(current_process->ebp)
                      :
                      );
-
-        start_tty(target);
     }
+
+    if (!ttys[target].flags)
+        start_tty(target);
 }
 
 void handle_key_event(uint32_t key_event) {
