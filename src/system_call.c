@@ -89,15 +89,18 @@ int32_t execute(const uint8_t* command) {
     cli();
 
     pcb_t* parent_process = current_process;
-    if (parent_process)
-        parent_process->state &= ~PACTIVE;
 
     current_process = pcb[pid];
     current_process->pid = pid;
     current_process->parent = parent_process;
     current_process->state |= PACTIVE;
 
-    current_process->tty = parent_process ? parent_process->tty : current_tty;
+    if (parent_process) {
+        current_process->tty = parent_process->tty;
+        parent_process->state &= ~PACTIVE;
+    } else {
+        current_process->tty = current_tty;
+    }
 
     sti();
 
